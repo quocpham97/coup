@@ -1,0 +1,81 @@
+import React, { FormEvent, useEffect, useState, KeyboardEvent } from 'react'
+import { Types } from 'ably'
+import { useChannel } from 'hooks/useAblyReactEffect'
+import styles from './chat.module.css'
+
+function AblyChatComponent() {
+  let inputBox: HTMLTextAreaElement | null = null
+  let messageEnd: HTMLDivElement | null = null
+
+  const [messageText, setMessageText] = useState('')
+  const [receivedMessages, setMessages] = useState<Types.Message[]>([])
+  const messageTextIsEmpty = messageText.trim().length === 0
+
+  const { channel, ably } = useChannel('chat-demo', (message) => {
+    const history = receivedMessages.slice(-199)
+    setMessages([...history, message])
+  })
+
+  const sendChatMessage = (msgText: string) => {
+    channel.publish({ name: 'chat-message', data: msgText })
+    setMessageText('')
+    inputBox && inputBox.focus()
+  }
+
+  const handleFormSubmission = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    sendChatMessage(messageText)
+  }
+
+  const handleKeyPress = (event: KeyboardEvent) => {
+    if (event.key !== 'Enter' || messageTextIsEmpty) {
+      return
+    }
+    sendChatMessage(messageText)
+    event.preventDefault()
+  }
+
+  const messages = receivedMessages.map((message, index) => {
+    const author = message.connectionId === ably.connection.id ? 'me' : 'other'
+    return (
+      // eslint-disable-next-line react/no-array-index-key
+      <span key={index} className={styles.message} data-author={author}>
+        {message.data}
+      </span>
+    )
+  })
+
+  useEffect(() => {
+    messageEnd && messageEnd.scrollIntoView({ behaviour: 'smooth' } as ScrollIntoViewOptions)
+  })
+
+  return (
+    <div className={styles.chatHolder}>
+      <div className={styles.chatText}>
+        {messages}
+        <div
+          ref={(element) => {
+            messageEnd = element
+          }}
+        />
+      </div>
+      <form onSubmit={handleFormSubmission} className={styles.form}>
+        <textarea
+          ref={(element) => {
+            inputBox = element
+          }}
+          value={messageText}
+          placeholder="Type a message..."
+          onChange={(e) => setMessageText(e.target.value)}
+          onKeyDown={handleKeyPress}
+          className={styles.textarea}
+        />
+        <button type="submit" className={styles.button} disabled={messageTextIsEmpty}>
+          Send
+        </button>
+      </form>
+    </div>
+  )
+}
+
+export default AblyChatComponent
