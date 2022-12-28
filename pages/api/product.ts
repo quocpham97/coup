@@ -12,7 +12,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     case 'POST':
       try {
         const { id } = req.body as {
-          id: string[]
+          id: string
         }
 
         if (!id) {
@@ -20,11 +20,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           return
         }
 
-        const product = (await Product.findOne<IProduct>({ _id: id }).exec()) || {}
+        const product = await Product.findOne<IProduct>({ _id: id }).exec()
 
         res.status(200).json({ success: true, product })
       } catch (error) {
-        res.status(400).json({ success: false })
+        res.status(400).json(null)
       }
       break
 

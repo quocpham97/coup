@@ -19,7 +19,7 @@ function AblyChatComponent() {
 
   const sendChatMessage = async (msgText: string) => {
     const product = await getProduct(msgText)
-    channel.publish({ name: 'chat-message', data: product.description })
+    channel.publish({ name: 'chat-message', data: product ? product.description : 'Not found' })
     setMessageText('')
     inputBox && inputBox.focus()
   }
