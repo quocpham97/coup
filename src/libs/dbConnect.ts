@@ -42,6 +42,7 @@ async function dbConnect() {
       bufferCommands: false,
     }
 
+    mongoose.set('strictQuery', true)
     cached.promise = mongoose.connect(MONGODB_URI as string, opts).then((mgs) => mgs)
   }
   cached.conn = await cached.promise
