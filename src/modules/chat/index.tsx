@@ -1,6 +1,7 @@
 import React, { FormEvent, useEffect, useState, KeyboardEvent } from 'react'
 import { Types } from 'ably'
 import { useChannel } from 'hooks/useAblyReactEffect'
+import { getProduct } from 'services/product'
 import styles from './chat.module.css'
 
 function AblyChatComponent() {
@@ -16,8 +17,9 @@ function AblyChatComponent() {
     setMessages([...history, message])
   })
 
-  const sendChatMessage = (msgText: string) => {
-    channel.publish({ name: 'chat-message', data: msgText })
+  const sendChatMessage = async (msgText: string) => {
+    const product = await getProduct(msgText)
+    channel.publish({ name: 'chat-message', data: product.description })
     setMessageText('')
     inputBox && inputBox.focus()
   }
