@@ -2,6 +2,13 @@
 # yarn lockfile v1
 
 
+"@ably-labs/react-hooks@^2.0.11":
+  version "2.0.11"
+  resolved "https://registry.yarnpkg.com/@ably-labs/react-hooks/-/react-hooks-2.0.11.tgz#edb14073d4a472481c8724e35425d1c235ee2f09"
+  integrity sha512-KqU8JnKDeTa+bWFImb/ghs6YIXQoYlK6PuLCUOO2hP3yGWsu2Xv3+5P/V3HBuZvA49jo9rxT0SdLQMSk4Uialw==
+  dependencies:
+    ably "^1.2.27"
+
 "@ably/msgpack-js@^0.4.0":
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/@ably/msgpack-js/-/msgpack-js-0.4.0.tgz#aaaf5d8dffacf7aa253effd8c3488aa09130e6a2"
@@ -1165,7 +1172,7 @@
     "@typescript-eslint/types" "5.47.0"
     eslint-visitor-keys "^3.3.0"
 
-ably@^1.2.34:
+ably@^1.2.27, ably@^1.2.34:
   version "1.2.34"
   resolved "https://registry.yarnpkg.com/ably/-/ably-1.2.34.tgz#5e78dd9a6b358b893678e860014c72cb9a1b03a7"
   integrity sha512-ERc9kxp9eLtqwWjjdzUzEbKZ1ydup3BWGNH8toNcCpimGq/y/+3zuR5xO9VXlEWGFf5oYXLdSbudj/mTU/cp3w==
@@ -1550,6 +1557,11 @@ clone-response@^1.0.2:
   integrity sha512-ROoL94jJH2dUVML2Y/5PEDNaSHgeOdSDicUyS7izcF63G6sTc/FTjLub4b8Il9S8S0beOfYt0TaA5qvFK+w0wA==
   dependencies:
     mimic-response "^1.0.0"
+
+clsx@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/clsx/-/clsx-1.2.1.tgz#0ddc4a20a549b59c93a4116bb26f5294ca17dc12"
+  integrity sha512-EcR6r5a8bj6pu3ycsa/E/cKVGuTgZJZdsyUYHOksG/UHIiKfjxzRxYJpyVBwYaQeOvghal9fcc4PidlgzugAQg==
 
 color-convert@^2.0.1:
   version "2.0.1"

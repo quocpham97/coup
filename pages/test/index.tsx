@@ -1,7 +1,8 @@
-import React from 'react'
+import React from 'react';
+import TestModule from 'modules/test';
 
 function TestPage() {
-  return <div className="text-red-500">TestPage</div>
+  return <TestModule />;
 }
 
-export default TestPage
+export default TestPage;

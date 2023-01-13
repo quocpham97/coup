@@ -1,9 +1,9 @@
-import axios from 'axios'
-import { IProduct } from 'types'
+import axios from 'axios';
+import { IProduct } from 'types';
 
 export interface IResponseData {
-  product: IProduct
-  success: boolean
+  product: IProduct;
+  success: boolean;
 }
 
 export const getProduct = async (id: string): Promise<IProduct | null> => {
@@ -11,8 +11,8 @@ export const getProduct = async (id: string): Promise<IProduct | null> => {
     return await axios
       .post<IResponseData>(`/api/product`, { id })
       .then((res) => res.data.product)
-      .catch(() => null)
+      .catch(() => null);
   } catch (error) {
-    return Promise.reject(error)
+    return Promise.reject(error);
   }
-}
+};
