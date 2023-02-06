@@ -30,6 +30,9 @@ function ConfigureAbly({ children }: { children: JSX.Element }) {
         // eslint-disable-next-line no-console
         console.log(`${member.clientId} entered realtime-chat`);
       });
+      // cm.presence.subscribe('update', (member) => {
+      //   console.log(member);
+      // });
       cm.presence.subscribe('leave', (member) => {
         // eslint-disable-next-line no-console
         console.log(`${member.clientId} left realtime-chat`);

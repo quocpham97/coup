@@ -5,11 +5,14 @@ import { CHANNEL_NAME } from 'constants/channel';
 import { getRoom, leaveRoom } from 'services/room';
 import { Room } from 'types';
 
+// const COUNT_DOWN_TIME = 15;
+
 function RoomModule() {
   const router = useRouter();
   const { roomId } = router.query;
 
   const [room, setRoom] = useState<Room | null>();
+  // const [timeLeft, setTimeLeft] = useState(COUNT_DOWN_TIME);
   const [channel] = useChannel(`${CHANNEL_NAME.room}-${roomId as string}`, () => {});
   const ably = assertConfiguration();
 
@@ -27,6 +30,24 @@ function RoomModule() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // TODO: countdown
+  // const intervalRef = useRef<NodeJS.Timer>();
+
+  // useEffect(() => {
+  //   intervalRef.current = setInterval(() => {
+  //     setTimeLeft((t) => t - 1);
+  //   }, 1000);
+  //   return () => clearInterval(intervalRef.current);
+  // }, []);
+
+  // useEffect(() => {
+  //   channel.publish({ data: timeLeft.toString() });
+  //   if (timeLeft <= 0) {
+  //     clearInterval(intervalRef.current);
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [timeLeft]);
 
   const handleLeaveRoom = async () => {
     await leaveRoom(roomId as string, ably.auth.clientId);
