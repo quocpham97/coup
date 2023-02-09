@@ -1,4 +1,4 @@
-import { Action as ActionType } from 'types';
+import { ActionType } from 'types';
 
 export function useAction() {
   const actionTypes: Array<ActionType> = [

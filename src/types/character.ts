@@ -6,7 +6,7 @@ export enum Character {
   Captain = 'Captain',
 }
 
-export enum Action {
+export enum ActionType {
   TakeIncome = 'TakeIncome',
   TakeForeignAid = 'TakeForeignAid',
   MakeCoup = 'MakeCoup',

@@ -1,6 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
-import { Action as ActionType } from 'types';
+import { ActionType } from 'types';
 import { useAction } from 'hooks/useAction';
 
 function Action({ type, isDisabled }: { type: ActionType; isDisabled: boolean }) {

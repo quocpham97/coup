@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { CHANNEL_NAME } from 'constants/channel';
 import { getRoom, leaveRoom } from 'services/room';
 import { Room } from 'types';
+import Action from 'components/Action';
+import { useAction } from 'hooks/useAction';
 
 // const COUNT_DOWN_TIME = 15;
 
@@ -15,6 +17,7 @@ function RoomModule() {
   // const [timeLeft, setTimeLeft] = useState(COUNT_DOWN_TIME);
   const [channel] = useChannel(`${CHANNEL_NAME.room}-${roomId as string}`, () => {});
   const ably = assertConfiguration();
+  const { actionTypes } = useAction();
 
   useEffect(() => {
     if (roomId) {
@@ -64,7 +67,12 @@ function RoomModule() {
       </div>
       <div>Room ID: {room?.roomId}</div>
       <div>Cards: {room?.cards}</div>
-      <div>Players: {room?.players}</div>
+      <div>Players: {JSON.stringify(room?.players)}</div>
+      <div className="flex gap-2">
+        {actionTypes.map((a, index) => (
+          <Action key={`${a}-${index + 1}`} type={a} isDisabled={index % 2 === 0} />
+        ))}
+      </div>
     </div>
   );
 }

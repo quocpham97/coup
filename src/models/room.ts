@@ -1,16 +1,19 @@
 import mongoose from 'mongoose';
+import { Player } from 'types';
 
 const roomSchema = new mongoose.Schema<{
   roomId: string;
   cards: string[];
-  players: string[];
+  host: string;
+  players: Player[];
   _id?: mongoose.Types.ObjectId | undefined;
 }>(
   {
     _id: mongoose.Schema.Types.ObjectId,
     roomId: { type: String, required: true },
     cards: { type: [String], required: true },
-    players: { type: [String] },
+    host: { type: String },
+    players: { type: [Object] },
   },
   { collection: 'room' },
 );
