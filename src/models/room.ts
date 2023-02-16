@@ -1,19 +1,14 @@
 import mongoose from 'mongoose';
-import { Player } from 'types';
+import { Room as RoomDTO } from 'types';
 
-const roomSchema = new mongoose.Schema<{
-  roomId: string;
-  cards: string[];
-  host: string;
-  players: Player[];
-  _id?: mongoose.Types.ObjectId | undefined;
-}>(
+const roomSchema = new mongoose.Schema<RoomDTO>(
   {
     _id: mongoose.Schema.Types.ObjectId,
     roomId: { type: String, required: true },
     cards: { type: [String], required: true },
     host: { type: String },
     players: { type: [Object] },
+    currentTurn: { type: String },
   },
   { collection: 'room' },
 );

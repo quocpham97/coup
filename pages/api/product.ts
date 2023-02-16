@@ -6,11 +6,10 @@ import { IProduct } from 'types';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
 
-  await dbConnect();
-
   switch (method) {
     case 'POST':
       try {
+        await dbConnect();
         const { id } = req.body as {
           id: string;
         };

@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import dbConnect from 'libs/dbConnect';
 import Room from 'models/room';
 import { generateCards } from 'utils/gameGenerator';
-import { Player } from 'types';
+import { Room as RoomDTO } from 'types';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
@@ -20,12 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           cards,
           host: '',
           players: [],
-        }) as mongoose.Document & {
-          roomId: string;
-          cards: string[];
-          players: Player[];
-          host: string;
-        };
+        }) as mongoose.Document & RoomDTO;
 
         await room.save();
 

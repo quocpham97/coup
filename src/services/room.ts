@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Room } from 'types';
+import { Room, RoomActionType } from 'types';
 
 export interface IResponseData {
   cards: string[];
@@ -21,7 +21,7 @@ export const getRoom = async (roomId: string): Promise<Room | null> => {
 export const joinRoom = async (roomId: string, playerId: string): Promise<string[] | null> => {
   try {
     return await axios
-      .put<IResponseData>(`/api/room`, { roomId, playerId, action: 'JOIN' })
+      .put<IResponseData>(`/api/room`, { roomId, playerId, action: RoomActionType.JOIN })
       .then((res) => res.data.cards)
       .catch(() => null);
   } catch (error) {
@@ -32,7 +32,7 @@ export const joinRoom = async (roomId: string, playerId: string): Promise<string
 export const leaveRoom = async (roomId: string, playerId: string): Promise<string[] | null> => {
   try {
     return await axios
-      .put<IResponseData>(`/api/room`, { roomId, playerId, action: 'LEAVE' })
+      .put<IResponseData>(`/api/room`, { roomId, playerId, action: RoomActionType.LEAVE })
       .then((res) => res.data.cards)
       .catch(() => null);
   } catch (error) {

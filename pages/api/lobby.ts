@@ -5,11 +5,10 @@ import Room from 'models/room';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
 
-  await dbConnect();
-
   switch (method) {
     case 'GET':
       try {
+        await dbConnect();
         const rooms = await Room.find().exec();
 
         res.status(200).json({ success: true, rooms: rooms || [] });

@@ -1,28 +1,22 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import mongoose from 'mongoose';
 import dbConnect from 'libs/dbConnect';
 import Room from 'models/room';
-import { ActionType, Player } from 'types';
+import { ActionType, Room as RoomDTO } from 'types';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
 
-  await dbConnect();
-
   switch (method) {
     case 'PUT':
       try {
+        await dbConnect();
         const { roomId, playerId, action } = req.body as {
           roomId: string;
           playerId: string;
           action: ActionType;
         };
 
-        const room = (await Room.findOne({ roomId })) as {
-          _id: mongoose.Schema.Types.ObjectId;
-          cards: string[];
-          players: Player[];
-        };
+        const room = (await Room.findOne({ roomId })) as RoomDTO;
 
         switch (action) {
           case ActionType.TakeIncome:
@@ -145,6 +139,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               },
             ).exec();
             break;
+          case ActionType.Next:
+            await Room.updateOne(
+              { roomId },
+              {
+                $set: {
+                  players: room.players,
+                },
+              },
+            ).exec();
+            break;
 
           default:
             await Room.updateOne(
@@ -158,11 +162,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             break;
         }
 
-        const roomAfterAction = (await Room.findOne({ roomId })) as {
-          _id: mongoose.Schema.Types.ObjectId;
-          cards: string[];
-          players: Player[];
-        };
+        const roomAfterAction = (await Room.findOne({ roomId })) as RoomDTO;
 
         res.status(200).json({
           success: true,
@@ -177,12 +177,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     case 'POST':
       try {
         const { roomId } = req.body as { roomId: string };
-        const room = (await Room.findOne({ roomId })) as {
-          _id: mongoose.Schema.Types.ObjectId;
-          roomId: string;
-          cards: string[];
-          players: string[];
-        };
+        const room = (await Room.findOne({ roomId })) as RoomDTO;
 
         res.status(200).json({ success: true, room });
       } catch (error) {

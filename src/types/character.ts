@@ -18,4 +18,5 @@ export enum ActionType {
   BlockForeignAid = 'BlockForeignAid',
   Challenge = 'Challenge',
   DrawCard = 'DrawCard',
+  Next = 'Next',
 }
