@@ -1,23 +1,31 @@
 import { assertConfiguration, useChannel } from '@ably-labs/react-hooks';
 import { useRouter } from 'next/router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { differenceInSeconds } from 'date-fns';
 import { CHANNEL_NAME } from 'constants/channel';
 import { getRoom, leaveRoom } from 'services/room';
-import { Room } from 'types';
+import { ActionType, Room } from 'types';
 import Action from 'components/Action';
 import { useAction } from 'hooks/useAction';
 
-// const COUNT_DOWN_TIME = 15;
+const COUNT_DOWN_TIME = 30;
 
 function RoomModule() {
   const router = useRouter();
   const { roomId } = router.query;
 
   const [room, setRoom] = useState<Room | null>();
-  // const [timeLeft, setTimeLeft] = useState(COUNT_DOWN_TIME);
-  const [channel] = useChannel(`${CHANNEL_NAME.room}-${roomId as string}`, () => {});
+  const [timeLeft, setTimeLeft] = useState(COUNT_DOWN_TIME);
+  const [channel] = useChannel(`${CHANNEL_NAME.room}-${roomId as string}`, (mess) => {
+    const { action, endTimeTurn } = mess.data as { action: string; endTimeTurn?: string };
+    if (action === 'GetNewEndTime' || action === 'NextPlayer') {
+      setRoom((prev) => ({ ...prev, endTimeTurn } as Room));
+    }
+    if (action === 'JoinRoom' || action === 'LeaveRoom')
+      getRoom(roomId as string).then((res) => setRoom(res));
+  });
   const ably = assertConfiguration();
-  const { actionTypes } = useAction();
+  const { actionList } = useAction();
 
   useEffect(() => {
     if (roomId) {
@@ -26,35 +34,43 @@ function RoomModule() {
   }, [roomId]);
 
   useEffect(() => {
-    channel.presence.enter();
+    channel.presence.enter(null, () => {
+      channel.publish({ data: { action: 'JoinRoom' } });
+    });
 
     return () => {
-      channel.presence.leave();
+      channel.presence.leave(null, () => {
+        channel.publish({ data: { action: 'LeaveRoom' } });
+      });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // TODO: countdown
-  // const intervalRef = useRef<NodeJS.Timer>();
+  const intervalRef = useRef<NodeJS.Timer>();
 
-  // useEffect(() => {
-  //   intervalRef.current = setInterval(() => {
-  //     setTimeLeft((t) => t - 1);
-  //   }, 1000);
-  //   return () => clearInterval(intervalRef.current);
-  // }, []);
+  useEffect(() => {
+    intervalRef.current = setInterval(() => {
+      setTimeLeft(differenceInSeconds(new Date(room?.endTimeTurn as string), new Date()));
+    }, 1000);
+    return () => clearInterval(intervalRef.current);
+  }, [room?.endTimeTurn]);
 
-  // useEffect(() => {
-  //   channel.publish({ data: timeLeft.toString() });
-  //   if (timeLeft <= 0) {
-  //     clearInterval(intervalRef.current);
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [timeLeft]);
+  useEffect(() => {
+    if (timeLeft <= 0) {
+      clearInterval(intervalRef.current);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeLeft]);
 
   const handleLeaveRoom = async () => {
     await leaveRoom(roomId as string, ably.auth.clientId);
     router.push(`/lobby`);
+  };
+
+  const renderTimer = () => {
+    if (timeLeft > 1) return `${timeLeft} seconds`;
+    if (timeLeft > 0) return `${timeLeft} second`;
+    return 'End';
   };
 
   return (
@@ -69,10 +85,21 @@ function RoomModule() {
       <div>Cards: {room?.cards}</div>
       <div>Players: {JSON.stringify(room?.players)}</div>
       <div className="flex gap-2">
-        {actionTypes.map((a, index) => (
-          <Action key={`${a}-${index + 1}`} type={a} isDisabled={index % 2 === 0} />
+        {actionList.map((action, index) => (
+          <Action
+            key={`${action}-${index + 1}`}
+            type={action}
+            roomId={roomId as string}
+            isHidden={
+              // (room?.host !== ably.auth.clientId || room?.status === RoomStatusType.STARTED) &&
+              room?.host !== ably.auth.clientId && ActionType.Start === action
+            }
+            channel={channel}
+          />
         ))}
       </div>
+      <div>Time left: {room?.endTimeTurn}</div>
+      <div>Timer: {renderTimer()} </div>
     </div>
   );
 }

@@ -1,9 +1,22 @@
 import React from 'react';
 import clsx from 'clsx';
+import { Types } from 'ably';
 import { ActionType } from 'types';
 import { useAction } from 'hooks/useAction';
 
-function Action({ type, isDisabled }: { type: ActionType; isDisabled: boolean }) {
+function Action({
+  type,
+  roomId,
+  isDisabled,
+  isHidden,
+  channel,
+}: {
+  type: ActionType;
+  roomId: string;
+  isDisabled?: boolean;
+  isHidden?: boolean;
+  channel: Types.RealtimeChannelCallbacks;
+}) {
   const { getAction } = useAction();
 
   const renderActionText = () => {
@@ -30,6 +43,10 @@ function Action({ type, isDisabled }: { type: ActionType; isDisabled: boolean })
         return 'Draw Card';
       case ActionType.Challenge:
         return 'Challenge';
+      case ActionType.Next:
+        return 'Next';
+      case ActionType.Start:
+        return 'Start';
 
       default:
         return null;
@@ -41,13 +58,19 @@ function Action({ type, isDisabled }: { type: ActionType; isDisabled: boolean })
       className={clsx(
         'border  rounded-md px-3 py-1 ',
         isDisabled ? 'border-gray-500 text-gray-500' : 'border-blue-500 text-blue-500',
+        isHidden ? 'hidden' : '',
       )}
       type="button"
-      onClick={() => getAction(type)()}
+      onClick={() => getAction(type, roomId, channel)()}
     >
       {renderActionText()}
     </button>
   );
 }
+
+Action.defaultProps = {
+  isDisabled: false,
+  isHidden: false,
+};
 
 export default Action;

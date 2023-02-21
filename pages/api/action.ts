@@ -1,13 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import dbConnect from 'libs/dbConnect';
 import Room from 'models/room';
-import { ActionType, Room as RoomDTO } from 'types';
+import { ActionType, Room as RoomDTO, RoomStatusType } from 'types';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
 
   switch (method) {
-    case 'PUT':
+    case 'POST':
       try {
         await dbConnect();
         const { roomId, playerId, action } = req.body as {
@@ -139,26 +139,43 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               },
             ).exec();
             break;
-          case ActionType.Next:
+          case ActionType.Next: {
+            const endTime = new Date();
+            endTime.setSeconds(endTime.getSeconds() + 30);
             await Room.updateOne(
               { roomId },
               {
                 $set: {
-                  players: room.players,
+                  endTimeTurn: endTime.toUTCString(),
+                },
+              },
+            ).exec();
+
+            res.status(200).json({
+              success: true,
+              endTimeTurn: endTime.toUTCString(),
+            });
+
+            return;
+          }
+          case ActionType.Start: {
+            const endTime = new Date();
+            endTime.setSeconds(endTime.getSeconds() + 30);
+            await Room.updateOne(
+              { roomId },
+              {
+                $set: {
+                  status: RoomStatusType.STARTED,
+                  currentTurn:
+                    room.players[Math.floor(Math.random() * room.players.length)].playerId,
+                  endTimeTurn: endTime.toUTCString(),
                 },
               },
             ).exec();
             break;
+          }
 
           default:
-            await Room.updateOne(
-              { roomId },
-              {
-                $set: {
-                  players: [],
-                },
-              },
-            ).exec();
             break;
         }
 
@@ -174,19 +191,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
       break;
 
-    case 'POST':
-      try {
-        const { roomId } = req.body as { roomId: string };
-        const room = (await Room.findOne({ roomId })) as RoomDTO;
-
-        res.status(200).json({ success: true, room });
-      } catch (error) {
-        res.status(400).json(null);
-      }
-      break;
-
     default:
-      res.setHeader('Allow', ['GET', 'POST', 'PUT']);
+      res.setHeader('Allow', ['POST']);
       res.status(405).end(`Method ${method || ''} Not Allowed`);
       break;
   }

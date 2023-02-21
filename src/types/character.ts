@@ -19,4 +19,5 @@ export enum ActionType {
   Challenge = 'Challenge',
   DrawCard = 'DrawCard',
   Next = 'Next',
+  Start = 'Start',
 }

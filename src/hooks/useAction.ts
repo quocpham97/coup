@@ -1,7 +1,10 @@
+import { assertConfiguration } from '@ably-labs/react-hooks';
+import { Types } from 'ably';
+import { nextTurn, startGame } from 'services/action';
 import { ActionType } from 'types';
 
 export function useAction() {
-  const actionTypes: Array<ActionType> = [
+  const actionList: Array<ActionType> = [
     ActionType.TakeIncome,
     ActionType.TakeForeignAid,
     ActionType.MakeCoup,
@@ -13,9 +16,12 @@ export function useAction() {
     ActionType.ExchangeCard,
     ActionType.DrawCard,
     ActionType.Challenge,
+    ActionType.Next,
+    ActionType.Start,
   ];
+  const ably = assertConfiguration();
 
-  const getAction = (type: ActionType) => {
+  const getAction = (type: ActionType, roomId: string, channel: Types.RealtimeChannelCallbacks) => {
     switch (type) {
       case ActionType.TakeIncome:
         return () => {
@@ -61,11 +67,22 @@ export function useAction() {
         return () => {
           console.log(ActionType.Challenge);
         };
+      case ActionType.Next:
+        return async () => {
+          await nextTurn(roomId, ably.auth.clientId).then((res) => {
+            channel.publish({ data: { action: 'NextPlayer', endTimeTurn: res?.endTimeTurn } });
+          });
+        };
+      case ActionType.Start:
+        return async () => {
+          await startGame(roomId, ably.auth.clientId);
+          channel.publish({ data: { action: 'GetNewEndTime' } });
+        };
 
       default:
         return () => {};
     }
   };
 
-  return { actionTypes, getAction };
+  return { actionList, getAction };
 }
