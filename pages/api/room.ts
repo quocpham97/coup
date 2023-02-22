@@ -22,10 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           case RoomActionType.JOIN: {
             const players = [...room.players, { playerId, coins: 0 } as Player];
             const host = players.length === 1 ? players[0].playerId : room.host;
-            await Room.updateOne(
-              { roomId },
-              { $set: { players, host, currentTurn: playerId } },
-            ).exec();
+            await Room.updateOne({ roomId }, { $set: { players, host } }).exec();
             break;
           }
 
@@ -36,7 +33,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               if (players.length === 1) return players[0].playerId;
               return room.host;
             })();
-            await Room.updateOne({ roomId }, { $set: { players, host, currentTurn: host } }).exec();
+            await Room.updateOne({ roomId }, { $set: { players, host } }).exec();
             break;
           }
 

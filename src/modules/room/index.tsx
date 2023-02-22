@@ -17,11 +17,11 @@ function RoomModule() {
   const [room, setRoom] = useState<Room | null>();
   const [timeLeft, setTimeLeft] = useState(COUNT_DOWN_TIME);
   const [channel] = useChannel(`${CHANNEL_NAME.room}-${roomId as string}`, (mess) => {
-    const { action, endTimeTurn } = mess.data as { action: string; endTimeTurn?: string };
-    if (action === 'GetNewEndTime' || action === 'NextPlayer') {
-      setRoom((prev) => ({ ...prev, endTimeTurn } as Room));
+    const { action } = mess.data as { action: string };
+    if (action === 'GetNewEndTime' || action === 'Next') {
+      getRoom(roomId as string).then((res) => setRoom(res));
     }
-    if (action === 'JoinRoom' || action === 'LeaveRoom')
+    if (action === 'JoinRoom' || action === 'LeaveRoom' || action === 'CompleteAction')
       getRoom(roomId as string).then((res) => setRoom(res));
   });
   const ably = assertConfiguration();
@@ -84,22 +84,25 @@ function RoomModule() {
       <div>Room ID: {room?.roomId}</div>
       <div>Cards: {room?.cards}</div>
       <div>Players: {JSON.stringify(room?.players)}</div>
-      <div className="flex gap-2">
-        {actionList.map((action, index) => (
-          <Action
-            key={`${action}-${index + 1}`}
-            type={action}
-            roomId={roomId as string}
-            isHidden={
-              // (room?.host !== ably.auth.clientId || room?.status === RoomStatusType.STARTED) &&
-              room?.host !== ably.auth.clientId && ActionType.Start === action
-            }
-            channel={channel}
-          />
-        ))}
-      </div>
       <div>Time left: {room?.endTimeTurn}</div>
       <div>Timer: {renderTimer()} </div>
+      <div>My ID: {ably.auth.clientId} </div>
+      <div>Current Player: {room?.currentTurn} </div>
+      <div className="flex gap-2">
+        {room?.currentTurn === ably.auth.clientId &&
+          actionList.map((action, index) => (
+            <Action
+              key={`${action}-${index + 1}`}
+              type={action}
+              roomId={roomId as string}
+              isHidden={
+                // (room?.host !== ably.auth.clientId || room?.status === RoomStatusType.STARTED) &&
+                room?.host !== ably.auth.clientId && ActionType.Start === action
+              }
+              channel={channel}
+            />
+          ))}
+      </div>
     </div>
   );
 }

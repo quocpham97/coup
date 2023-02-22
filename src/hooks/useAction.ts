@@ -1,6 +1,6 @@
 import { assertConfiguration } from '@ably-labs/react-hooks';
 import { Types } from 'ably';
-import { nextTurn, startGame } from 'services/action';
+import { nextTurn, startGame, takeIncome } from 'services/action';
 import { ActionType } from 'types';
 
 export function useAction() {
@@ -24,8 +24,12 @@ export function useAction() {
   const getAction = (type: ActionType, roomId: string, channel: Types.RealtimeChannelCallbacks) => {
     switch (type) {
       case ActionType.TakeIncome:
-        return () => {
-          console.log(ActionType.TakeIncome);
+        return async () => {
+          await takeIncome(roomId, ably.auth.clientId).then(async () => {
+            await nextTurn(roomId, ably.auth.clientId).then(() => {
+              channel.publish({ data: { action: 'CompleteAction' } });
+            });
+          });
         };
       case ActionType.TakeForeignAid:
         return () => {
@@ -69,14 +73,15 @@ export function useAction() {
         };
       case ActionType.Next:
         return async () => {
-          await nextTurn(roomId, ably.auth.clientId).then((res) => {
-            channel.publish({ data: { action: 'NextPlayer', endTimeTurn: res?.endTimeTurn } });
+          await nextTurn(roomId, ably.auth.clientId).then(() => {
+            channel.publish({ data: { action: 'Next' } });
           });
         };
       case ActionType.Start:
         return async () => {
-          await startGame(roomId, ably.auth.clientId);
-          channel.publish({ data: { action: 'GetNewEndTime' } });
+          await startGame(roomId, ably.auth.clientId).then(() => {
+            channel.publish({ data: { action: 'GetNewEndTime' } });
+          });
         };
 
       default:

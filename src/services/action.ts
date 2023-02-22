@@ -17,12 +17,23 @@ export const startGame = async (roomId: string, playerId: string): Promise<void>
   }
 };
 
-export const nextTurn = async (roomId: string, playerId: string): Promise<IResponseData | null> => {
+export const nextTurn = async (roomId: string, playerId: string): Promise<void> => {
   try {
     return await axios
-      .post<IResponseData>(`/api/action`, { roomId, playerId, action: ActionType.Next })
-      .then((res) => res.data)
-      .catch(() => null);
+      .post(`/api/action`, { roomId, playerId, action: ActionType.Next })
+      .then(() => {})
+      .catch(() => {});
+  } catch (error) {
+    return Promise.reject(error);
+  }
+};
+
+export const takeIncome = async (roomId: string, playerId: string): Promise<void> => {
+  try {
+    return await axios
+      .post(`/api/action`, { roomId, playerId, action: ActionType.TakeIncome })
+      .then(() => {})
+      .catch(() => {});
   } catch (error) {
     return Promise.reject(error);
   }

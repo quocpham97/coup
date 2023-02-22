@@ -7,6 +7,7 @@ export interface Room {
   cards: string[];
   host: string;
   players: Player[];
+  currentAction?: { action: string; isApprove: boolean };
   currentTurn?: string;
   endTimeTurn?: string;
   _id?: mongoose.Types.ObjectId | undefined;

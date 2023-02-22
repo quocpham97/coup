@@ -20,4 +20,5 @@ export enum ActionType {
   DrawCard = 'DrawCard',
   Next = 'Next',
   Start = 'Start',
+  Wait = 'Wait',
 }

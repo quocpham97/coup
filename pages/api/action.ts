@@ -142,19 +142,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           case ActionType.Next: {
             const endTime = new Date();
             endTime.setSeconds(endTime.getSeconds() + 30);
+
+            const nextPlayerId =
+              room.players[
+                (room.players.findIndex((player) => player.playerId === room.currentTurn) + 1) %
+                  room.players.length
+              ].playerId;
+
             await Room.updateOne(
               { roomId },
-              {
-                $set: {
-                  endTimeTurn: endTime.toUTCString(),
-                },
-              },
+              { $set: { endTimeTurn: endTime.toUTCString(), currentTurn: nextPlayerId } },
             ).exec();
 
-            res.status(200).json({
-              success: true,
-              endTimeTurn: endTime.toUTCString(),
-            });
+            res.status(200).json({ success: true, endTimeTurn: endTime.toUTCString() });
 
             return;
           }
