@@ -62,6 +62,7 @@ function Action({
       )}
       type="button"
       onClick={() => getAction(type, roomId, channel)()}
+      disabled={isDisabled}
     >
       {renderActionText()}
     </button>

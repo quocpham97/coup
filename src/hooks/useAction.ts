@@ -1,6 +1,6 @@
 import { assertConfiguration } from '@ably-labs/react-hooks';
 import { Types } from 'ably';
-import { nextTurn, startGame, takeIncome } from 'services/action';
+import { nextTurn, startGame, takeForeignAid, takeIncome } from 'services/action';
 import { ActionType } from 'types';
 
 export function useAction() {
@@ -32,8 +32,10 @@ export function useAction() {
           });
         };
       case ActionType.TakeForeignAid:
-        return () => {
-          console.log(ActionType.TakeForeignAid);
+        return async () => {
+          await takeForeignAid(roomId, ably.auth.clientId).then(() => {
+            channel.publish({ data: { action: 'Wait' } });
+          });
         };
       case ActionType.MakeCoup:
         return () => {

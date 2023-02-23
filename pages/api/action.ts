@@ -31,18 +31,35 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               },
             ).exec();
             break;
-          case ActionType.TakeForeignAid:
-            await Room.updateOne(
-              { roomId },
-              {
-                $set: {
-                  players: room.players.map((player) =>
-                    player.playerId === playerId ? { ...player, coins: player.coins + 2 } : player,
-                  ),
+          case ActionType.TakeForeignAid: {
+            if (room.currentAction === null) {
+              type RoomUpdateCurrentAction = Pick<RoomDTO, 'currentAction'>;
+              await Room.updateOne(
+                { roomId },
+                {
+                  $set: {
+                    currentAction: { mainAction: ActionType.TakeForeignAid, isWaiting: true },
+                  } as RoomUpdateCurrentAction,
                 },
-              },
-            ).exec();
+              ).exec();
+            } else if (!room.currentAction.isWaiting) {
+              type RoomUpdatePlayers = Pick<RoomDTO, 'players' | 'currentAction'>;
+              await Room.updateOne(
+                { roomId },
+                {
+                  $set: {
+                    players: room.players.map((player) =>
+                      player.playerId === playerId
+                        ? { ...player, coins: player.coins + 2 }
+                        : player,
+                    ),
+                    currentAction: null,
+                  } as RoomUpdatePlayers,
+                },
+              ).exec();
+            }
             break;
+          }
           case ActionType.MakeCoup:
             await Room.updateOne(
               { roomId },
@@ -151,12 +168,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             await Room.updateOne(
               { roomId },
-              { $set: { endTimeTurn: endTime.toUTCString(), currentTurn: nextPlayerId } },
+              {
+                $set: {
+                  endTimeTurn: endTime.toUTCString(),
+                  currentTurn: nextPlayerId,
+                  currentAction: null,
+                } as RoomDTO,
+              },
             ).exec();
-
-            res.status(200).json({ success: true, endTimeTurn: endTime.toUTCString() });
-
-            return;
+            break;
           }
           case ActionType.Start: {
             const endTime = new Date();
@@ -169,7 +189,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                   currentTurn:
                     room.players[Math.floor(Math.random() * room.players.length)].playerId,
                   endTimeTurn: endTime.toUTCString(),
-                },
+                  currentAction: null,
+                } as RoomDTO,
               },
             ).exec();
             break;
