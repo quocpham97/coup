@@ -5,7 +5,7 @@ export type Player = {
   cards?: Character[];
   coins: number;
   name?: string;
-  health?: number;
+  health: number;
   assets?: {
     dead: string;
     win: string;

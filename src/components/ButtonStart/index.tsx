@@ -4,24 +4,20 @@ import { Types } from 'ably';
 import { ActionType } from 'types';
 import { useAction } from 'hooks/useAction';
 
-// type CurrentAction = Pick<Room, 'currentAction'>;
-
-function Action({
-  type,
+function ButtonStart({
   roomId,
   isDisabled,
   isHidden,
   isHighlight,
   channel,
 }: {
-  type: ActionType;
   roomId: string;
   isDisabled?: boolean;
   isHidden?: boolean;
   isHighlight?: boolean;
   channel: Types.RealtimeChannelCallbacks;
 }) {
-  const { getAction, getText } = useAction();
+  const { getAction } = useAction();
 
   return (
     <button
@@ -32,18 +28,18 @@ function Action({
         isHighlight ? 'border-green-500 text-green-500' : 'border-blue-500 text-blue-500',
       )}
       type="button"
-      onClick={() => getAction(type, roomId, channel)()}
+      onClick={() => getAction(ActionType.Start, roomId, channel)()}
       disabled={isDisabled}
     >
-      {getText(type)}
+      Start
     </button>
   );
 }
 
-Action.defaultProps = {
+ButtonStart.defaultProps = {
   isDisabled: false,
   isHidden: false,
   isHighlight: false,
 };
 
-export default Action;
+export default ButtonStart;

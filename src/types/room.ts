@@ -11,6 +11,7 @@ export interface Room {
     playerId: string;
     mainAction: string;
     isWaiting: boolean;
+    approvedPlayers: string[];
     isChallenging: boolean;
     challengerId?: string;
     challengeAction?: string;

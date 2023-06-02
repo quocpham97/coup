@@ -21,4 +21,5 @@ export enum ActionType {
   Next = 'Next',
   Start = 'Start',
   Wait = 'Wait',
+  Approve = 'Approve',
 }

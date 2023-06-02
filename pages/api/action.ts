@@ -3,6 +3,9 @@ import dbConnect from 'libs/dbConnect';
 import Room from 'models/room';
 import { ActionType, Room as RoomDTO, RoomStatusType } from 'types';
 
+type RoomUpdateCurrentAction = Pick<RoomDTO, 'currentAction' | 'endTimeTurn'>;
+type RoomUpdatePlayers = Pick<RoomDTO, 'players' | 'currentAction'>;
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
 
@@ -32,18 +35,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             ).exec();
             break;
           case ActionType.TakeForeignAid: {
+            const endTime = new Date();
+            endTime.setSeconds(endTime.getSeconds() + 30);
             if (room.currentAction === null) {
-              type RoomUpdateCurrentAction = Pick<RoomDTO, 'currentAction'>;
               await Room.updateOne(
                 { roomId },
                 {
                   $set: {
-                    currentAction: { mainAction: ActionType.TakeForeignAid, isWaiting: true },
+                    currentAction: {
+                      playerId,
+                      mainAction: ActionType.TakeForeignAid,
+                      isWaiting: true,
+                      approvedPlayers: [] as string[],
+                    },
+                    endTimeTurn: endTime.toUTCString(),
                   } as RoomUpdateCurrentAction,
                 },
               ).exec();
-            } else if (!room.currentAction.isWaiting) {
-              type RoomUpdatePlayers = Pick<RoomDTO, 'players' | 'currentAction'>;
+            } else if (
+              room.players.filter((pl) => pl.health > 0 && pl.playerId !== playerId).length ===
+              room.currentAction?.approvedPlayers.length
+            ) {
               await Room.updateOne(
                 { roomId },
                 {
@@ -58,7 +70,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 },
               ).exec();
             }
-            break;
+            const roomAfterAction = (await Room.findOne({ roomId })) as RoomDTO;
+
+            res.status(200).json({
+              success: true,
+              data: { roomId, playerId, action },
+              players: roomAfterAction.players,
+            });
+            return;
           }
           case ActionType.MakeCoup:
             await Room.updateOne(
@@ -195,6 +214,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             ).exec();
             break;
           }
+          case ActionType.Approve: {
+            await Room.updateOne(
+              { roomId },
+              {
+                $set: {
+                  currentAction: {
+                    ...room.currentAction,
+                    approvedPlayers: room.currentAction && [
+                      ...room.currentAction.approvedPlayers,
+                      playerId,
+                    ],
+                  },
+                } as RoomUpdateCurrentAction,
+              },
+            ).exec();
+            break;
+          }
 
           default:
             break;
@@ -204,8 +240,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         res.status(200).json({
           success: true,
-          data: { roomId, playerId, action },
+          info: { roomId, playerId, action },
+          isApproved:
+            roomAfterAction.players.filter((pl) => pl.health > 0 && pl.playerId !== playerId)
+              .length === roomAfterAction.currentAction?.approvedPlayers.length,
           players: roomAfterAction.players,
+          currentTurn: roomAfterAction.currentTurn,
         });
       } catch (error) {
         res.status(400).json(null);

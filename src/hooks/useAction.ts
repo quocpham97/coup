@@ -1,23 +1,27 @@
 import { assertConfiguration } from '@ably-labs/react-hooks';
 import { Types } from 'ably';
-import { nextTurn, startGame, takeForeignAid, takeIncome } from 'services/action';
+import { approve, nextTurn, startGame, takeForeignAid, takeIncome } from 'services/action';
 import { ActionType } from 'types';
 
 export function useAction() {
-  const actionList: Array<ActionType> = [
+  const normalActionList: Array<ActionType> = [
     ActionType.TakeIncome,
     ActionType.TakeForeignAid,
-    ActionType.MakeCoup,
-    ActionType.Steal,
-    ActionType.Kill,
+    // ActionType.MakeCoup,
+    // ActionType.Steal,
+    // ActionType.Kill,
+    // ActionType.ExchangeCard,
+    // ActionType.DrawCard,
+  ];
+  const challengeActionList: Array<ActionType> = [
+    ActionType.Challenge,
+    // ActionType.Next,
+    ActionType.Approve,
+  ];
+  const blockActionList: Array<ActionType> = [
     ActionType.BlockSteal,
     ActionType.BlockForeignAid,
     ActionType.BlockKill,
-    ActionType.ExchangeCard,
-    ActionType.DrawCard,
-    ActionType.Challenge,
-    ActionType.Next,
-    ActionType.Start,
   ];
   const ably = assertConfiguration();
 
@@ -73,6 +77,13 @@ export function useAction() {
         return () => {
           console.log(ActionType.Challenge);
         };
+      case ActionType.Approve:
+        return async () => {
+          console.log(ActionType.Approve);
+          await approve(roomId, ably.auth.clientId).then(() => {
+            channel.publish({ data: { action: 'Approve' } });
+          });
+        };
       case ActionType.Next:
         return async () => {
           await nextTurn(roomId, ably.auth.clientId).then(() => {
@@ -91,5 +102,41 @@ export function useAction() {
     }
   };
 
-  return { actionList, getAction };
+  const getText = (type: ActionType) => {
+    switch (type) {
+      case ActionType.TakeIncome:
+        return 'Take Income';
+      case ActionType.TakeForeignAid:
+        return 'Take Foreign Aid';
+      case ActionType.MakeCoup:
+        return 'Make Coup';
+      case ActionType.Steal:
+        return 'Steal';
+      case ActionType.Kill:
+        return 'Kill';
+      case ActionType.BlockSteal:
+        return 'Block Steal';
+      case ActionType.BlockForeignAid:
+        return 'Block Foreign Aid';
+      case ActionType.BlockKill:
+        return 'Block Kill';
+      case ActionType.ExchangeCard:
+        return 'Exchange Card';
+      case ActionType.DrawCard:
+        return 'Draw Card';
+      case ActionType.Challenge:
+        return 'Challenge';
+      case ActionType.Next:
+        return 'Next';
+      case ActionType.Start:
+        return 'Start';
+      case ActionType.Approve:
+        return 'Approve';
+
+      default:
+        return null;
+    }
+  };
+
+  return { normalActionList, challengeActionList, blockActionList, getAction, getText };
 }
