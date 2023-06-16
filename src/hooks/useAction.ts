@@ -1,6 +1,18 @@
 import { assertConfiguration } from '@ably-labs/react-hooks';
 import { Types } from 'ably';
-import { approve, nextTurn, startGame, takeForeignAid, takeIncome } from 'services/action';
+import {
+  accept,
+  approve,
+  blockExchangeCard,
+  blockForeignAid,
+  challenge,
+  exchangeCard,
+  nextTurn,
+  showCard,
+  startGame,
+  takeForeignAid,
+  takeIncome,
+} from 'services/action';
 import { ActionType } from 'types';
 
 export function useAction() {
@@ -10,12 +22,17 @@ export function useAction() {
     // ActionType.MakeCoup,
     // ActionType.Steal,
     // ActionType.Kill,
-    // ActionType.ExchangeCard,
+    ActionType.ExchangeCard,
     // ActionType.DrawCard,
   ];
-  const challengeActionList: Array<ActionType> = [
-    ActionType.Challenge,
-    // ActionType.Next,
+  const challengeActionGroup: Array<ActionType> = [ActionType.Challenge, ActionType.Accept];
+  const proveActionGroup: Array<ActionType> = [ActionType.ShowCard, ActionType.Accept];
+  const blockExchangeCardActionGroup: Array<ActionType> = [
+    ActionType.BlockExchangeCard,
+    ActionType.Approve,
+  ];
+  const blockForeignAidActionGroup: Array<ActionType> = [
+    ActionType.BlockForeignAid,
     ActionType.Approve,
   ];
   const blockActionList: Array<ActionType> = [
@@ -58,28 +75,51 @@ export function useAction() {
           console.log(ActionType.BlockSteal);
         };
       case ActionType.BlockForeignAid:
-        return () => {
-          console.log(ActionType.BlockForeignAid);
+        return async () => {
+          await blockForeignAid(roomId, ably.auth.clientId).then(() => {
+            channel.publish({ data: { action: 'Wait' } });
+          });
         };
       case ActionType.BlockKill:
         return () => {
           console.log(ActionType.BlockKill);
         };
+      case ActionType.BlockExchangeCard:
+        return async () => {
+          await blockExchangeCard(roomId, ably.auth.clientId).then(() => {
+            channel.publish({ data: { action: 'Wait' } });
+          });
+        };
       case ActionType.ExchangeCard:
-        return () => {
-          console.log(ActionType.ExchangeCard);
+        return async () => {
+          await exchangeCard(roomId, ably.auth.clientId).then(() => {
+            channel.publish({ data: { action: 'Wait' } });
+          });
         };
       case ActionType.DrawCard:
         return () => {
           console.log(ActionType.DrawCard);
         };
       case ActionType.Challenge:
-        return () => {
-          console.log(ActionType.Challenge);
+        return async () => {
+          await challenge(roomId, ably.auth.clientId).then(() => {
+            channel.publish({ data: { action: 'Challenge' } });
+          });
+        };
+      case ActionType.Accept:
+        return async () => {
+          await accept(roomId, ably.auth.clientId).then(() => {
+            channel.publish({ data: { action: 'Next' } });
+          });
+        };
+      case ActionType.ShowCard:
+        return async () => {
+          await showCard(roomId, ably.auth.clientId).then(() => {
+            channel.publish({ data: { action: 'Next' } });
+          });
         };
       case ActionType.Approve:
         return async () => {
-          console.log(ActionType.Approve);
           await approve(roomId, ably.auth.clientId).then(() => {
             channel.publish({ data: { action: 'Approve' } });
           });
@@ -120,23 +160,38 @@ export function useAction() {
         return 'Block Foreign Aid';
       case ActionType.BlockKill:
         return 'Block Kill';
+      case ActionType.BlockExchangeCard:
+        return 'Block Exchange Card';
       case ActionType.ExchangeCard:
         return 'Exchange Card';
       case ActionType.DrawCard:
         return 'Draw Card';
       case ActionType.Challenge:
         return 'Challenge';
+      case ActionType.Accept:
+        return 'Accept';
       case ActionType.Next:
         return 'Next';
       case ActionType.Start:
         return 'Start';
       case ActionType.Approve:
         return 'Approve';
+      case ActionType.ShowCard:
+        return 'Show Card';
 
       default:
         return null;
     }
   };
 
-  return { normalActionList, challengeActionList, blockActionList, getAction, getText };
+  return {
+    normalActionList,
+    proveActionGroup,
+    challengeActionGroup,
+    blockForeignAidActionGroup,
+    blockExchangeCardActionGroup,
+    blockActionList,
+    getAction,
+    getText,
+  };
 }

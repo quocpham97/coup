@@ -8,6 +8,7 @@ const roomSchema = new mongoose.Schema<RoomDTO>(
     status: { type: String, required: true },
     cards: { type: [String], required: true },
     host: { type: String },
+    playerIds: { type: [String] },
     players: { type: [Object] },
     currentAction: { type: Object },
     currentTurn: { type: String },

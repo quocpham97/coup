@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { differenceInSeconds } from 'date-fns';
 import { CHANNEL_NAME } from 'constants/channel';
 import { getRoom, leaveRoom } from 'services/room';
-import { Room, RoomStatusType } from 'types';
+import { ActionType, Room, RoomStatusType } from 'types';
 import Action from 'components/Action';
 import { useAction } from 'hooks/useAction';
 import ButtonStart from 'components/ButtonStart';
@@ -27,11 +27,17 @@ function RoomModule() {
       getRoom(roomId as string).then((res) => setRoom(res));
     } else if (action === 'JoinRoom' || action === 'LeaveRoom' || action === 'CompleteAction')
       getRoom(roomId as string).then((res) => setRoom(res));
-    else if (action === 'Approve') {
+    else if (action === 'Approve' || action === 'Challenge') {
       getRoom(roomId as string).then((res) => setRoom(res));
     }
   });
-  const { normalActionList, challengeActionList } = useAction();
+  const {
+    normalActionList,
+    proveActionGroup,
+    challengeActionGroup,
+    blockExchangeCardActionGroup,
+    blockForeignAidActionGroup,
+  } = useAction();
 
   useEffect(() => {
     if (roomId) {
@@ -104,14 +110,12 @@ function RoomModule() {
       <div>My ID: {ably.auth.clientId} </div>
       <div>Current Player: {room?.currentTurn} </div>
       <div>Current Action: {room?.currentAction?.mainAction} </div>
-      <div>Action Status: {JSON.stringify(room?.currentAction?.isWaiting)} </div>
+      <div>Action Status: {JSON.stringify(room?.currentAction)} </div>
       <div>Approved Players: {JSON.stringify(room?.currentAction?.approvedPlayers)} </div>
       <div className="my-2">
-        <ButtonStart
-          roomId={roomId as string}
-          isHidden={room?.host !== ably.auth.clientId || room?.status === RoomStatusType.STARTED}
-          channel={channel}
-        />
+        {room?.host === ably.auth.clientId && room?.status !== RoomStatusType.STARTED && (
+          <ButtonStart roomId={roomId as string} isHighlight channel={channel} />
+        )}
       </div>
       <div className="flex gap-2">
         {/* TODO: show/hide action button depend on current turn (playerId) */}
@@ -119,20 +123,14 @@ function RoomModule() {
           (!room?.currentAction?.isWaiting || !room.currentAction)) ||
           (room?.currentTurn !== ably.auth.clientId && room?.currentAction?.isWaiting)) && */}
         {room?.status === RoomStatusType.STARTED &&
+          room?.currentTurn === ably.auth.clientId &&
+          room.currentAction === null &&
           normalActionList.map((action, index) => (
             <Action
               key={`${action}-${index + 1}`}
               type={action}
               roomId={roomId as string}
-              isHidden={
-                room?.currentTurn !== ably.auth.clientId ||
-                (room?.currentTurn === ably.auth.clientId && room.currentAction !== null)
-              }
-              isHighlight={
-                (room?.currentTurn === ably.auth.clientId && room?.currentAction === null) ||
-                (room?.currentAction?.isWaiting && room?.currentTurn !== ably.auth.clientId)
-              }
-              // isDisabled={room?.currentTurn !== ably.auth.clientId}
+              isHighlight
               channel={channel}
             />
           ))}
@@ -140,17 +138,69 @@ function RoomModule() {
         {room?.status === RoomStatusType.STARTED &&
           room?.currentTurn !== ably.auth.clientId &&
           room.currentAction !== null &&
+          room.currentAction.mainAction === ActionType.ExchangeCard &&
+          !room.currentAction.isOpposing &&
+          !room.currentAction.isChallenging &&
           room.players.filter((pl) => pl.playerId === ably.auth.clientId)[0].health > 0 &&
           !room.currentAction.approvedPlayers.includes(ably.auth.clientId) &&
-          challengeActionList.map((action, index) => (
+          blockExchangeCardActionGroup.map((action, index) => (
             <Action
               key={`${action}-${index + 1}`}
               type={action}
               roomId={roomId as string}
-              isHighlight={
-                (room?.currentTurn === ably.auth.clientId && room?.currentAction === null) ||
-                (room?.currentAction?.isWaiting && room?.currentTurn !== ably.auth.clientId)
-              }
+              isHighlight
+              channel={channel}
+            />
+          ))}
+
+        {room?.status === RoomStatusType.STARTED &&
+          room?.currentTurn !== ably.auth.clientId &&
+          room.currentAction !== null &&
+          room.currentAction.mainAction === ActionType.TakeForeignAid &&
+          !room.currentAction.isOpposing &&
+          !room.currentAction.isChallenging &&
+          room.players.filter((pl) => pl.playerId === ably.auth.clientId)[0].health > 0 &&
+          !room.currentAction.approvedPlayers.includes(ably.auth.clientId) &&
+          blockForeignAidActionGroup.map((action, index) => (
+            <Action
+              key={`${action}-${index + 1}`}
+              type={action}
+              roomId={roomId as string}
+              isHighlight
+              channel={channel}
+            />
+          ))}
+
+        {room?.status === RoomStatusType.STARTED &&
+          room?.currentTurn === ably.auth.clientId &&
+          room.currentAction !== null &&
+          room.currentAction.isOpposing &&
+          !room.currentAction.isChallenging &&
+          room.players.filter((pl) => pl.playerId === ably.auth.clientId)[0].health > 0 &&
+          !room.currentAction.approvedPlayers.includes(ably.auth.clientId) &&
+          challengeActionGroup.map((action, index) => (
+            <Action
+              key={`${action}-${index + 1}`}
+              type={action}
+              roomId={roomId as string}
+              isHighlight
+              channel={channel}
+            />
+          ))}
+
+        {room?.status === RoomStatusType.STARTED &&
+          room?.currentTurn !== ably.auth.clientId &&
+          room.currentAction !== null &&
+          room.currentAction.isOpposing &&
+          room.currentAction.isChallenging &&
+          room.players.filter((pl) => pl.playerId === ably.auth.clientId)[0].health > 0 &&
+          room.currentAction.opposerId === ably.auth.clientId &&
+          proveActionGroup.map((action, index) => (
+            <Action
+              key={`${action}-${index + 1}`}
+              type={action}
+              roomId={roomId as string}
+              isHighlight
               channel={channel}
             />
           ))}

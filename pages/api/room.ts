@@ -21,13 +21,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         switch (action) {
           case RoomActionType.JOIN: {
             const players = [...room.players, { playerId, coins: 0, health: 2 } as Player];
+            const playerIds = [...room.playerIds, playerId];
             const host = players.length === 1 ? players[0].playerId : room.host;
-            await Room.updateOne({ roomId }, { $set: { players, host } }).exec();
+            await Room.updateOne({ roomId }, { $set: { players, playerIds, host } }).exec();
             break;
           }
 
           case RoomActionType.LEAVE: {
             const players = room.players.filter((pl) => pl.playerId !== playerId);
+            const playerIds = room.playerIds.filter((id) => id !== playerId);
             const host = (() => {
               if (players.length === 0) return null;
               if (players.length === 1) return players[0].playerId;
@@ -38,6 +40,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               {
                 $set: {
                   players,
+                  playerIds,
                   host,
                   currentTurn: players.length === 0 ? null : room.currentTurn,
 

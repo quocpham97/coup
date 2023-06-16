@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import type { NextApiRequest, NextApiResponse } from 'next';
 import dbConnect from 'libs/dbConnect';
 import Room from 'models/room';
@@ -130,7 +131,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               { roomId },
               {
                 $set: {
-                  players: room.players,
+                  currentAction: {
+                    ...room.currentAction,
+                    isOpposing: true,
+                    opposerId: playerId,
+                    opposeAction: room.currentAction?.mainAction,
+                  },
                 },
               },
             ).exec();
@@ -145,16 +151,40 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               },
             ).exec();
             break;
-          case ActionType.ExchangeCard:
+          case ActionType.BlockExchangeCard:
             await Room.updateOne(
               { roomId },
               {
                 $set: {
-                  players: room.players,
+                  currentAction: {
+                    ...room.currentAction,
+                    isOpposing: true,
+                    opposerId: playerId,
+                    opposeAction: room.currentAction?.mainAction,
+                  },
                 },
               },
             ).exec();
             break;
+          case ActionType.ExchangeCard: {
+            const endTime = new Date();
+            endTime.setSeconds(endTime.getSeconds() + 30);
+            await Room.updateOne(
+              { roomId },
+              {
+                $set: {
+                  currentAction: {
+                    playerId,
+                    mainAction: ActionType.ExchangeCard,
+                    isWaiting: true,
+                    approvedPlayers: [] as string[],
+                  },
+                  endTimeTurn: endTime.toUTCString(),
+                } as RoomUpdateCurrentAction,
+              },
+            ).exec();
+            break;
+          }
           case ActionType.DrawCard:
             await Room.updateOne(
               { roomId },
@@ -170,7 +200,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               { roomId },
               {
                 $set: {
-                  players: room.players,
+                  currentAction: {
+                    ...room.currentAction,
+                    isChallenging: true,
+                    challengerId: playerId,
+                    challengeAction: room.currentAction?.mainAction,
+                  },
                 },
               },
             ).exec();
@@ -185,6 +220,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                   room.players.length
               ].playerId;
 
+            const updatedPlayers = room.players.filter((pl) => pl.health !== 0);
+
             await Room.updateOne(
               { roomId },
               {
@@ -192,6 +229,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                   endTimeTurn: endTime.toUTCString(),
                   currentTurn: nextPlayerId,
                   currentAction: null,
+                  players: updatedPlayers,
                 } as RoomDTO,
               },
             ).exec();
@@ -227,6 +265,52 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     ],
                   },
                 } as RoomUpdateCurrentAction,
+              },
+            ).exec();
+            break;
+          }
+          case ActionType.Accept: {
+            if (room.currentAction?.isOpposing) {
+              if (!room.currentAction.isChallenging) break;
+              else {
+                switch (room.currentAction.mainAction) {
+                  case ActionType.TakeForeignAid: {
+                    await Room.updateOne(
+                      { roomId },
+                      {
+                        $set: {
+                          players: room.players.map((player) =>
+                            player.playerId === room.currentTurn
+                              ? { ...player, coins: player.coins + 2 }
+                              : player,
+                          ),
+                          currentAction: null,
+                        } as RoomUpdatePlayers,
+                      },
+                    ).exec();
+                    break;
+                  }
+
+                  default:
+                    break;
+                }
+              }
+            }
+            break;
+          }
+
+          case ActionType.ShowCard: {
+            await Room.updateOne(
+              { roomId },
+              {
+                $set: {
+                  players: room.players.map((player) =>
+                    player.playerId === room.currentTurn
+                      ? { ...player, health: player.health - 1 }
+                      : player,
+                  ),
+                  currentAction: null,
+                } as RoomUpdatePlayers,
               },
             ).exec();
             break;

@@ -6,6 +6,7 @@ export interface Room {
   status: RoomStatusType;
   cards: string[];
   host: string;
+  playerIds: string[];
   players: Player[];
   currentAction: {
     playerId: string;

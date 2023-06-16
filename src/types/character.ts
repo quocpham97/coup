@@ -16,10 +16,13 @@ export enum ActionType {
   BlockKill = 'BlockKill',
   ExchangeCard = 'ExchangeCard',
   BlockForeignAid = 'BlockForeignAid',
+  BlockExchangeCard = 'BlockExchangeCard',
   Challenge = 'Challenge',
   DrawCard = 'DrawCard',
   Next = 'Next',
   Start = 'Start',
   Wait = 'Wait',
   Approve = 'Approve',
+  Accept = 'Accept',
+  ShowCard = 'ShowCard',
 }
