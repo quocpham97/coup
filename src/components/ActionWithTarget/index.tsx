@@ -1,21 +1,18 @@
 import React from 'react';
 import clsx from 'clsx';
-import { Types } from 'ably';
 import { ActionType } from 'types';
 import { useAction } from 'hooks/useAction';
 
-function ButtonStart({
-  roomId,
-  isDisabled,
+function ActionWithTarget({
+  type,
   isHighlight,
-  channel,
+  setSelectedAction,
 }: {
-  roomId: string;
-  isDisabled?: boolean;
+  type: ActionType;
   isHighlight?: boolean;
-  channel: Types.RealtimeChannelCallbacks;
+  setSelectedAction: React.Dispatch<React.SetStateAction<string | undefined>>;
 }) {
-  const { getAction } = useAction();
+  const { getText } = useAction();
 
   return (
     <button
@@ -24,17 +21,15 @@ function ButtonStart({
         isHighlight ? 'border-green-500 text-green-500' : 'border-blue-500 text-blue-500',
       )}
       type="button"
-      onClick={() => getAction({ type: ActionType.Start, roomId, channel })()}
-      disabled={isDisabled}
+      onClick={() => setSelectedAction(type)}
     >
-      Start
+      {getText(type)}
     </button>
   );
 }
 
-ButtonStart.defaultProps = {
-  isDisabled: false,
+ActionWithTarget.defaultProps = {
   isHighlight: false,
 };
 
-export default ButtonStart;
+export default ActionWithTarget;

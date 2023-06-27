@@ -10,19 +10,20 @@ import {
   nextTurn,
   showCard,
   startGame,
+  steal,
   takeForeignAid,
   takeIncome,
 } from 'services/action';
 import { ActionType } from 'types';
 
 export function useAction() {
-  const normalActionList: Array<ActionType> = [
-    ActionType.TakeIncome,
-    ActionType.TakeForeignAid,
+  const normalActionList: Array<{ type: ActionType; isHasTarget: boolean }> = [
+    { type: ActionType.TakeIncome, isHasTarget: false },
+    { type: ActionType.TakeForeignAid, isHasTarget: false },
     // ActionType.MakeCoup,
-    // ActionType.Steal,
     // ActionType.Kill,
-    ActionType.ExchangeCard,
+    { type: ActionType.ExchangeCard, isHasTarget: false },
+    { type: ActionType.Steal, isHasTarget: true },
     // ActionType.DrawCard,
   ];
   const challengeActionGroup: Array<ActionType> = [ActionType.Challenge, ActionType.Accept];
@@ -42,7 +43,17 @@ export function useAction() {
   ];
   const ably = assertConfiguration();
 
-  const getAction = (type: ActionType, roomId: string, channel: Types.RealtimeChannelCallbacks) => {
+  const getAction = ({
+    type,
+    roomId,
+    channel,
+    targetId,
+  }: {
+    type: ActionType;
+    roomId: string;
+    channel: Types.RealtimeChannelCallbacks;
+    targetId?: string;
+  }) => {
     switch (type) {
       case ActionType.TakeIncome:
         return async () => {
@@ -63,8 +74,10 @@ export function useAction() {
           console.log(ActionType.MakeCoup);
         };
       case ActionType.Steal:
-        return () => {
-          console.log(ActionType.Steal);
+        return async () => {
+          await steal(roomId, ably.auth.clientId, targetId as string).then(() => {
+            channel.publish({ data: { action: 'Wait' } });
+          });
         };
       case ActionType.Kill:
         return () => {

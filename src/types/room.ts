@@ -10,6 +10,7 @@ export interface Room {
   players: Player[];
   currentAction: {
     playerId: string;
+    targetId: string;
     mainAction: string;
     isWaiting: boolean;
     approvedPlayers: string[];

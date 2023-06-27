@@ -7,6 +7,9 @@ import { ActionType, Room as RoomDTO, RoomStatusType } from 'types';
 type RoomUpdateCurrentAction = Pick<RoomDTO, 'currentAction' | 'endTimeTurn'>;
 type RoomUpdatePlayers = Pick<RoomDTO, 'players' | 'currentAction'>;
 
+const listActionNeedApprove = [ActionType.TakeForeignAid, ActionType.ExchangeCard];
+const listActionWithTarget = [ActionType.Steal, ActionType.Kill, ActionType.MakeCoup];
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
 
@@ -14,9 +17,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     case 'POST':
       try {
         await dbConnect();
-        const { roomId, playerId, action } = req.body as {
+        const { roomId, playerId, targetId, action } = req.body as {
           roomId: string;
           playerId: string;
+          targetId: string;
           action: ActionType;
         };
 
@@ -92,18 +96,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               },
             ).exec();
             break;
-          case ActionType.Steal:
+          case ActionType.Steal: {
+            const endTime = new Date();
+            endTime.setSeconds(endTime.getSeconds() + 30);
             await Room.updateOne(
               { roomId },
               {
                 $set: {
-                  players: room.players.map((player) =>
-                    player.playerId === playerId ? { ...player, coins: player.coins + 2 } : player,
-                  ),
-                },
+                  currentAction: {
+                    playerId,
+                    mainAction: ActionType.Steal,
+                    isWaiting: true,
+                    targetId,
+                  },
+                  endTimeTurn: endTime.toUTCString(),
+                } as RoomUpdateCurrentAction,
               },
             ).exec();
             break;
+          }
           case ActionType.Kill:
             await Room.updateOne(
               { roomId },
@@ -270,7 +281,53 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             break;
           }
           case ActionType.Accept: {
-            if (room.currentAction?.isOpposing) {
+            if (
+              room.currentAction &&
+              listActionWithTarget.includes(room.currentAction.mainAction as ActionType)
+            ) {
+              if (playerId === room.currentAction.playerId) {
+                await Room.updateOne(
+                  { roomId },
+                  {
+                    $set: {
+                      currentAction: null,
+                    } as RoomUpdatePlayers,
+                  },
+                ).exec();
+                break;
+              } else {
+                switch (room.currentAction.mainAction) {
+                  case ActionType.Steal: {
+                    const targetPlayer = room.players.find(
+                      (pl) => pl.playerId === room.currentAction?.targetId,
+                    );
+                    const earnedCoin =
+                      targetPlayer && targetPlayer.coins > 1 ? 2 : targetPlayer?.coins;
+                    const updatedPlayers = room.players.map((player) => {
+                      if (player.playerId === room.currentAction?.targetId) {
+                        return { ...player, coins: player.coins - Number(earnedCoin) };
+                      }
+                      if (player.playerId === room.currentTurn)
+                        return { ...player, coins: player.coins + Number(earnedCoin) };
+                      return player;
+                    });
+                    await Room.updateOne(
+                      { roomId },
+                      {
+                        $set: {
+                          players: updatedPlayers,
+                          currentAction: null,
+                        } as RoomUpdatePlayers,
+                      },
+                    ).exec();
+                    break;
+                  }
+
+                  default:
+                    break;
+                }
+              }
+            } else if (room.currentAction?.isOpposing) {
               if (!room.currentAction.isChallenging) break;
               else {
                 switch (room.currentAction.mainAction) {
@@ -299,6 +356,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             break;
           }
 
+          // TODO: rework logic show card
           case ActionType.ShowCard: {
             await Room.updateOne(
               { roomId },
@@ -326,6 +384,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           success: true,
           info: { roomId, playerId, action },
           isApproved:
+            listActionNeedApprove.includes(room.currentAction?.mainAction as ActionType) &&
             roomAfterAction.players.filter((pl) => pl.health > 0 && pl.playerId !== playerId)
               .length === roomAfterAction.currentAction?.approvedPlayers.length,
           players: roomAfterAction.players,

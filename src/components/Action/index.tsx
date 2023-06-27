@@ -25,11 +25,11 @@ function Action({
     <button
       className={clsx(
         'border  rounded-md px-3 py-1 ',
-        isDisabled ? 'border-gray-500 text-gray-500' : 'border-blue-500 text-blue-500',
-        isHighlight ? 'border-green-500 text-green-500' : 'border-blue-500 text-blue-500',
+        { 'border-gray-500 text-gray-500': isDisabled },
+        { 'border-green-500 text-green-500': isHighlight && !isDisabled },
       )}
       type="button"
-      onClick={() => getAction(type, roomId, channel)()}
+      onClick={() => getAction({ type, roomId, channel })()}
       disabled={isDisabled}
     >
       {getText(type)}
