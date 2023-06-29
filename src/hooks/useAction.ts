@@ -58,7 +58,7 @@ export function useAction() {
       case ActionType.TakeIncome:
         return async () => {
           await takeIncome(roomId, ably.auth.clientId).then(async () => {
-            await nextTurn(roomId, ably.auth.clientId).then(() => {
+            await nextTurn(roomId).then(() => {
               channel.publish({ data: { action: 'CompleteAction' } });
             });
           });
@@ -139,13 +139,13 @@ export function useAction() {
         };
       case ActionType.Next:
         return async () => {
-          await nextTurn(roomId, ably.auth.clientId).then(() => {
+          await nextTurn(roomId).then(() => {
             channel.publish({ data: { action: 'Next' } });
           });
         };
       case ActionType.Start:
         return async () => {
-          await startGame(roomId, ably.auth.clientId).then(() => {
+          await startGame(roomId).then(() => {
             channel.publish({ data: { action: 'GetNewEndTime' } });
           });
         };

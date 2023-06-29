@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { ActionType } from './character';
 import { Player } from './player';
 
 export interface Room {
@@ -35,3 +36,9 @@ export enum RoomStatusType {
   STARTED = 'STARTED',
   AVAILABLE = 'AVAILABLE',
 }
+
+export type RoomUpdateCurrentAction = Pick<Room, 'currentAction' | 'endTimeTurn'>;
+export type RoomUpdatePlayers = Pick<Room, 'players' | 'currentAction'>;
+
+export const listActionNeedApprove = [ActionType.TakeForeignAid, ActionType.ExchangeCard];
+export const listActionWithTarget = [ActionType.Steal, ActionType.Kill, ActionType.MakeCoup];

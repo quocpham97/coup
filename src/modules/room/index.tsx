@@ -217,7 +217,9 @@ function RoomModule() {
             room.currentAction.isChallenging &&
             room.players.filter((pl) => pl.playerId === ably.auth.clientId)[0].health > 0 &&
             room.currentAction.opposerId === ably.auth.clientId) ||
-            (room?.currentTurn === ably.auth.clientId && room.currentAction.isChallenging)) &&
+            (room?.currentTurn === ably.auth.clientId &&
+              !room.currentAction.isOpposing &&
+              room.currentAction.isChallenging)) &&
           proveActionGroup.map((action, index) => (
             <Action
               key={`${action}-${index + 1}`}
