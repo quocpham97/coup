@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { ActionType } from 'types';
 
 export interface IResponseData {
   success: boolean;
@@ -28,9 +29,21 @@ export const takeIncome = async (roomId: string, playerId: string): Promise<void
   }
 };
 
-export const takeForeignAid = async (roomId: string, playerId: string): Promise<void> => {
+export const takeForeignAid = async ({
+  roomId,
+  playerId,
+  isApproved,
+}: {
+  roomId: string;
+  playerId?: string;
+  isApproved?: boolean;
+}): Promise<void> => {
   try {
-    return await axios.post(`/api/action/takeForeignAid`, { roomId, playerId });
+    return await axios.post(`/api/action/takeForeignAid`, {
+      roomId,
+      playerId,
+      isApproved,
+    });
   } catch (error) {
     return Promise.reject(error);
   }
@@ -39,12 +52,9 @@ export const takeForeignAid = async (roomId: string, playerId: string): Promise<
 export const approve = async (roomId: string, playerId: string): Promise<void> => {
   try {
     return await axios.post(`/api/action/approve`, { roomId, playerId }).then(async (res) => {
-      const { isApproved, currentTurn } = res.data as {
-        isApproved: boolean;
-        currentTurn: string;
-      };
+      const { isApproved } = res.data as { isApproved: boolean };
       if (isApproved) {
-        await takeForeignAid(roomId, currentTurn);
+        await takeForeignAid({ roomId, isApproved });
         await nextTurn(roomId);
       }
     });
@@ -79,7 +89,11 @@ export const blockForeignAid = async (roomId: string, playerId: string): Promise
 
 export const accept = async (roomId: string, playerId: string): Promise<void> => {
   try {
-    return await axios.post(`/api/action/accept`, { roomId, playerId }).then(async () => {
+    return await axios.post(`/api/action/accept`, { roomId, playerId }).then(async (res) => {
+      const { action } = res.data as {
+        action: ActionType;
+      };
+      if (action === ActionType.TakeForeignAid) await takeForeignAid({ roomId });
       await nextTurn(roomId);
     });
   } catch (error) {

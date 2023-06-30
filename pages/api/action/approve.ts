@@ -36,7 +36,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             listActionNeedApprove.includes(room.currentAction?.mainAction as ActionType) &&
             roomAfterAction.players.filter((pl) => pl.health > 0 && pl.playerId !== playerId)
               .length === roomAfterAction.currentAction?.approvedPlayers.length,
-          currentTurn: roomAfterAction.currentTurn,
         });
       } catch (error) {
         res.status(400).json(null);

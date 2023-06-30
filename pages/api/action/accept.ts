@@ -59,34 +59,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 break;
             }
           }
-        } else if (room.currentAction?.isOpposing) {
-          if (!room.currentAction.isChallenging) break;
-          else {
-            switch (room.currentAction.mainAction) {
-              case ActionType.TakeForeignAid: {
-                await Room.updateOne(
-                  { roomId },
-                  {
-                    $set: {
-                      players: room.players.map((player) =>
-                        player.playerId === room.currentTurn
-                          ? { ...player, coins: player.coins + 2 }
-                          : player,
-                      ),
-                      currentAction: null,
-                    } as RoomUpdatePlayers,
-                  },
-                ).exec();
-                break;
-              }
-
-              default:
-                break;
-            }
-          }
         }
 
-        res.status(200).json({});
+        res.status(200).json({
+          action: room.currentAction?.mainAction as ActionType,
+        });
       } catch (error) {
         res.status(400).json(null);
       }

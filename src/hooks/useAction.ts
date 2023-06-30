@@ -65,7 +65,7 @@ export function useAction() {
         };
       case ActionType.TakeForeignAid:
         return async () => {
-          await takeForeignAid(roomId, ably.auth.clientId).then(() => {
+          await takeForeignAid({ roomId, playerId: ably.auth.clientId }).then(() => {
             channel.publish({ data: { action: 'Wait' } });
           });
         };

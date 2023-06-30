@@ -13,13 +13,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     case 'POST':
       try {
         await dbConnect();
-        const { roomId, playerId } = req.body as { roomId: string; playerId: string };
+        const { roomId, playerId, isApproved } = req.body as {
+          roomId: string;
+          playerId: string;
+          isApproved: boolean;
+        };
 
         const room = (await Room.findOne({ roomId })) as RoomDTO;
 
         const endTime = new Date();
         endTime.setSeconds(endTime.getSeconds() + 30);
-        if (room.currentAction === null) {
+        if (room.currentAction === null && playerId && room.currentTurn === playerId) {
           await Room.updateOne(
             { roomId },
             {
@@ -35,15 +39,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             },
           ).exec();
         } else if (
-          room.players.filter((pl) => pl.health > 0 && pl.playerId !== playerId).length ===
-          room.currentAction?.approvedPlayers.length
+          isApproved ||
+          (room.currentAction?.isOpposing && room.currentAction.isChallenging)
         ) {
           await Room.updateOne(
             { roomId },
             {
               $set: {
                 players: room.players.map((player) =>
-                  player.playerId === playerId ? { ...player, coins: player.coins + 2 } : player,
+                  player.playerId === room.currentTurn
+                    ? { ...player, coins: player.coins + 2 }
+                    : player,
                 ),
                 currentAction: null,
               } as RoomUpdatePlayers,
