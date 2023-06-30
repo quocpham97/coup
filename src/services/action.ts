@@ -87,13 +87,24 @@ export const blockForeignAid = async (roomId: string, playerId: string): Promise
   }
 };
 
+// TODO: need to check case show card
+export const steal = async (roomId: string, playerId: string, targetId: string): Promise<void> => {
+  try {
+    return await axios.post(`/api/action/steal`, { roomId, playerId, targetId });
+  } catch (error) {
+    return Promise.reject(error);
+  }
+};
+
 export const accept = async (roomId: string, playerId: string): Promise<void> => {
   try {
     return await axios.post(`/api/action/accept`, { roomId, playerId }).then(async (res) => {
-      const { action } = res.data as {
+      const { action, targetId } = res.data as {
         action: ActionType;
+        targetId: string;
       };
       if (action === ActionType.TakeForeignAid) await takeForeignAid({ roomId });
+      if (action === ActionType.Steal) await steal(roomId, playerId, targetId);
       await nextTurn(roomId);
     });
   } catch (error) {
@@ -115,14 +126,6 @@ export const showCard = async (roomId: string, playerId: string): Promise<void> 
 export const blockExchangeCard = async (roomId: string, playerId: string): Promise<void> => {
   try {
     return await axios.post(`/api/action/blockExchangeCard`, { roomId, playerId });
-  } catch (error) {
-    return Promise.reject(error);
-  }
-};
-
-export const steal = async (roomId: string, playerId: string, targetId: string): Promise<void> => {
-  try {
-    return await axios.post(`/api/action/steal`, { roomId, playerId, targetId });
   } catch (error) {
     return Promise.reject(error);
   }
