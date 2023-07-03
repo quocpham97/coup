@@ -30,42 +30,41 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                   mainAction: ActionType.Steal,
                   isWaiting: true,
                   targetId,
+                  isChallenging: false,
+                  challengerId: '',
+                  challengeAction: '',
+                  isOpposing: false,
+                  opposerId: '',
+                  opposeAction: '',
                 },
                 endTimeTurn: endTime.toUTCString(),
               } as RoomUpdateCurrentAction,
             },
           ).exec();
-        } else if (room.currentAction && playerId === room.currentTurn) {
-          await Room.updateOne(
-            { roomId },
-            {
-              $set: {
-                currentAction: null,
-              } as RoomUpdatePlayers,
-            },
-          ).exec();
-        } else {
-          const targetPlayer = room.players.find(
-            (pl) => pl.playerId === room.currentAction?.targetId,
-          );
-          const earnedCoin = targetPlayer && targetPlayer.coins > 1 ? 2 : targetPlayer?.coins;
-          const updatedPlayers = room.players.map((player) => {
-            if (player.playerId === room.currentAction?.targetId) {
-              return { ...player, coins: player.coins - Number(earnedCoin) };
-            }
-            if (player.playerId === room.currentTurn)
-              return { ...player, coins: player.coins + Number(earnedCoin) };
-            return player;
-          });
-          await Room.updateOne(
-            { roomId },
-            {
-              $set: {
-                players: updatedPlayers,
-                currentAction: null,
-              } as RoomUpdatePlayers,
-            },
-          ).exec();
+        } else if (room.currentAction) {
+          if (playerId === room.currentTurn) {
+            const targetPlayer = room.players.find(
+              (pl) => pl.playerId === room.currentAction?.targetId,
+            );
+            const earnedCoin = targetPlayer && targetPlayer.coins > 1 ? 2 : targetPlayer?.coins;
+            const updatedPlayers = room.players.map((player) => {
+              if (player.playerId === room.currentAction?.targetId) {
+                return { ...player, coins: player.coins - Number(earnedCoin) };
+              }
+              if (player.playerId === room.currentTurn)
+                return { ...player, coins: player.coins + Number(earnedCoin) };
+              return player;
+            });
+            await Room.updateOne(
+              { roomId },
+              {
+                $set: {
+                  players: updatedPlayers,
+                  currentAction: null,
+                } as RoomUpdatePlayers,
+              },
+            ).exec();
+          }
         }
 
         res.status(200).json({});

@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import dbConnect from 'libs/dbConnect';
 import Room from 'models/room';
-import { Room as RoomDTO, RoomUpdatePlayers } from 'types';
+import { ActionType, Room as RoomDTO, RoomUpdatePlayers } from 'types';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
@@ -11,7 +11,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       try {
         await dbConnect();
         const { roomId } = req.body as { roomId: string; playerId: string };
-
         const room = (await Room.findOne({ roomId })) as RoomDTO;
 
         await Room.updateOne(
@@ -19,16 +18,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           {
             $set: {
               players: room.players.map((player) =>
-                player.playerId === room.currentTurn
+                (room.currentAction?.isOpposing &&
+                  player.playerId === room.currentAction.challengerId) ||
+                (!room.currentAction?.isOpposing &&
+                  player.playerId === room.currentAction?.targetId)
                   ? { ...player, health: player.health - 1 }
                   : player,
               ),
-              currentAction: null,
             } as RoomUpdatePlayers,
           },
         ).exec();
 
-        res.status(200).json({});
+        res.status(200).json({
+          action: room.currentAction?.mainAction as ActionType,
+          playerId: room.currentAction?.playerId,
+          targetId: room.currentAction?.targetId,
+        });
       } catch (error) {
         res.status(400).json(null);
       }

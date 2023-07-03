@@ -4,7 +4,6 @@ import { Types } from 'ably';
 import { ActionType } from 'types';
 import { useAction } from 'hooks/useAction';
 
-// TODO: select player to action when choose steal or any action like that
 export function TargetPlayer({
   type,
   roomId,

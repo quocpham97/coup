@@ -16,6 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         res.status(200).json({
           action: room.currentAction?.mainAction as ActionType,
+          playerId: room.currentAction?.playerId,
           targetId: room.currentAction?.targetId,
         });
       } catch (error) {

@@ -1,8 +1,10 @@
 import axios from 'axios';
 import { ActionType } from 'types';
 
-export interface IResponseData {
-  success: boolean;
+interface IResponseAction {
+  action: ActionType;
+  playerId: string;
+  targetId: string;
 }
 
 export const startGame = async (roomId: string): Promise<void> => {
@@ -98,15 +100,15 @@ export const steal = async (roomId: string, playerId: string, targetId: string):
 
 export const accept = async (roomId: string, playerId: string): Promise<void> => {
   try {
-    return await axios.post(`/api/action/accept`, { roomId, playerId }).then(async (res) => {
-      const { action, targetId } = res.data as {
-        action: ActionType;
-        targetId: string;
-      };
-      if (action === ActionType.TakeForeignAid) await takeForeignAid({ roomId });
-      if (action === ActionType.Steal) await steal(roomId, playerId, targetId);
-      await nextTurn(roomId);
-    });
+    return await axios
+      .post<IResponseAction>(`/api/action/accept`, { roomId, playerId })
+      .then(async (res) => {
+        const { action, targetId, playerId: resPlayerId } = res.data;
+        if (action === ActionType.TakeForeignAid) await takeForeignAid({ roomId });
+        if (action === ActionType.Steal && resPlayerId !== playerId)
+          await steal(roomId, resPlayerId, targetId);
+        await nextTurn(roomId);
+      });
   } catch (error) {
     return Promise.reject(error);
   }
@@ -115,9 +117,14 @@ export const accept = async (roomId: string, playerId: string): Promise<void> =>
 // TODO: rework logic show card
 export const showCard = async (roomId: string, playerId: string): Promise<void> => {
   try {
-    return await axios.post(`/api/action/showCard`, { roomId, playerId }).then(async () => {
-      await nextTurn(roomId);
-    });
+    return await axios
+      .post<IResponseAction>(`/api/action/showCard`, { roomId, playerId })
+      .then(async (res) => {
+        const { action, targetId, playerId: resPlayerId } = res.data;
+        if (action === ActionType.Steal && resPlayerId === playerId)
+          await steal(roomId, playerId, targetId);
+        await nextTurn(roomId);
+      });
   } catch (error) {
     return Promise.reject(error);
   }

@@ -16,11 +16,11 @@ export interface Room {
     isWaiting: boolean;
     approvedPlayers: string[];
     isChallenging: boolean;
-    challengerId?: string;
-    challengeAction?: string;
+    challengerId: string;
+    challengeAction: string;
     isOpposing: boolean;
-    opposerId?: string;
-    opposeAction?: string;
+    opposerId: string;
+    opposeAction: string;
   } | null;
   currentTurn?: string;
   endTimeTurn?: string;
