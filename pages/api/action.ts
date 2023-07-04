@@ -34,18 +34,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               },
             ).exec();
             break;
-          case ActionType.Kill:
-            await Room.updateOne(
-              { roomId },
-              {
-                $set: {
-                  players: room.players.map((player) =>
-                    player.playerId === playerId ? { ...player, coins: player.coins - 3 } : player,
-                  ),
-                },
-              },
-            ).exec();
-            break;
           case ActionType.BlockSteal:
             await Room.updateOne(
               { roomId },

@@ -17,20 +17,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const endTime = new Date();
         endTime.setSeconds(endTime.getSeconds() + 30);
 
-        const nextPlayerId =
-          room.players[
-            (room.players.findIndex((player) => player.playerId === room.currentTurn) + 1) %
-              room.players.length
-          ].playerId;
+        let nextIndex =
+          (room.players.findIndex((pl) => pl.playerId === room.currentTurn) + 1) %
+          room.players.length;
 
-        const updatedPlayers = room.players.filter((pl) => pl.health !== 0);
+        while (room.players[nextIndex].health <= 0) {
+          nextIndex = (nextIndex + 1) % room.players.length;
+        }
+
+        const updatedPlayers = room.players.filter((pl) => pl.health > 0);
 
         await Room.updateOne(
           { roomId },
           {
             $set: {
               endTimeTurn: endTime.toUTCString(),
-              currentTurn: nextPlayerId,
+              currentTurn: room.players[nextIndex].playerId,
               currentAction: null,
               players: updatedPlayers,
             } as RoomDTO,

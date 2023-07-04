@@ -89,10 +89,17 @@ export const blockForeignAid = async (roomId: string, playerId: string): Promise
   }
 };
 
-// TODO: need to check case show card
 export const steal = async (roomId: string, playerId: string, targetId: string): Promise<void> => {
   try {
     return await axios.post(`/api/action/steal`, { roomId, playerId, targetId });
+  } catch (error) {
+    return Promise.reject(error);
+  }
+};
+
+export const kill = async (roomId: string, playerId: string, targetId: string): Promise<void> => {
+  try {
+    return await axios.post(`/api/action/kill`, { roomId, playerId, targetId });
   } catch (error) {
     return Promise.reject(error);
   }
@@ -104,9 +111,20 @@ export const accept = async (roomId: string, playerId: string): Promise<void> =>
       .post<IResponseAction>(`/api/action/accept`, { roomId, playerId })
       .then(async (res) => {
         const { action, targetId, playerId: resPlayerId } = res.data;
+
         if (action === ActionType.TakeForeignAid) await takeForeignAid({ roomId });
+
         if (action === ActionType.Steal && resPlayerId !== playerId)
           await steal(roomId, resPlayerId, targetId);
+
+        if (action === ActionType.Kill) {
+          if (resPlayerId === playerId) {
+            await kill(roomId, resPlayerId, '');
+          } else if (targetId === playerId) {
+            await kill(roomId, resPlayerId, targetId);
+          }
+        }
+
         await nextTurn(roomId);
       });
   } catch (error) {
@@ -114,15 +132,21 @@ export const accept = async (roomId: string, playerId: string): Promise<void> =>
   }
 };
 
-// TODO: rework logic show card
+// TODO: enable when user has appropriate card
 export const showCard = async (roomId: string, playerId: string): Promise<void> => {
   try {
     return await axios
       .post<IResponseAction>(`/api/action/showCard`, { roomId, playerId })
       .then(async (res) => {
         const { action, targetId, playerId: resPlayerId } = res.data;
+
         if (action === ActionType.Steal && resPlayerId === playerId)
           await steal(roomId, playerId, targetId);
+
+        if (action === ActionType.Kill && resPlayerId === playerId) {
+          await kill(roomId, resPlayerId, '');
+        }
+
         await nextTurn(roomId);
       });
   } catch (error) {

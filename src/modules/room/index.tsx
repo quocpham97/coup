@@ -140,6 +140,7 @@ function RoomModule() {
                   key={`${action.type}-${index + 1}`}
                   type={action.type}
                   isHighlight
+                  isDisabled={!!selectedAction && selectedAction !== action.type}
                   setSelectedAction={setSelectedAction}
                 />
               );
@@ -161,7 +162,7 @@ function RoomModule() {
           room.currentAction.mainAction === ActionType.ExchangeCard &&
           !room.currentAction.isOpposing &&
           !room.currentAction.isChallenging &&
-          room.players.filter((pl) => pl.playerId === ably.auth.clientId)[0].health > 0 &&
+          room.players.map((pl) => pl.playerId).includes(ably.auth.clientId) &&
           !room.currentAction.approvedPlayers.includes(ably.auth.clientId) &&
           blockExchangeCardActionGroup.map((action, index) => (
             <Action
@@ -179,7 +180,7 @@ function RoomModule() {
           room.currentAction.mainAction === ActionType.TakeForeignAid &&
           !room.currentAction.isOpposing &&
           !room.currentAction.isChallenging &&
-          room.players.filter((pl) => pl.playerId === ably.auth.clientId)[0].health > 0 &&
+          room.players.map((pl) => pl.playerId).includes(ably.auth.clientId) &&
           !room.currentAction.approvedPlayers.includes(ably.auth.clientId) &&
           blockForeignAidActionGroup.map((action, index) => (
             <Action
@@ -196,7 +197,7 @@ function RoomModule() {
           ((room?.currentTurn === ably.auth.clientId &&
             room.currentAction.isOpposing &&
             !room.currentAction.isChallenging &&
-            room.players.filter((pl) => pl.playerId === ably.auth.clientId)[0].health > 0 &&
+            room.players.map((pl) => pl.playerId).includes(ably.auth.clientId) &&
             !room.currentAction.approvedPlayers.includes(ably.auth.clientId)) ||
             (!room.currentAction.isChallenging &&
               room.currentAction.targetId === ably.auth.clientId)) &&
@@ -215,7 +216,7 @@ function RoomModule() {
           ((room?.currentTurn !== ably.auth.clientId &&
             room.currentAction.isOpposing &&
             room.currentAction.isChallenging &&
-            room.players.filter((pl) => pl.playerId === ably.auth.clientId)[0].health > 0 &&
+            room.players.map((pl) => pl.playerId).includes(ably.auth.clientId) &&
             room.currentAction.opposerId === ably.auth.clientId) ||
             (room?.currentTurn === ably.auth.clientId &&
               !room.currentAction.isOpposing &&

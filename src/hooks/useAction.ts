@@ -7,6 +7,7 @@ import {
   blockForeignAid,
   challenge,
   exchangeCard,
+  kill,
   nextTurn,
   showCard,
   startGame,
@@ -21,9 +22,9 @@ export function useAction() {
     { type: ActionType.TakeIncome, isHasTarget: false },
     { type: ActionType.TakeForeignAid, isHasTarget: false },
     // ActionType.MakeCoup,
-    // ActionType.Kill,
     { type: ActionType.ExchangeCard, isHasTarget: false },
     { type: ActionType.Steal, isHasTarget: true },
+    { type: ActionType.Kill, isHasTarget: true },
     // ActionType.DrawCard,
   ];
   const challengeActionGroup: Array<ActionType> = [ActionType.Challenge, ActionType.Accept];
@@ -80,8 +81,10 @@ export function useAction() {
           });
         };
       case ActionType.Kill:
-        return () => {
-          console.log(ActionType.Kill);
+        return async () => {
+          await kill(roomId, ably.auth.clientId, targetId as string).then(() => {
+            channel.publish({ data: { action: 'Wait' } });
+          });
         };
       case ActionType.BlockSteal:
         return () => {

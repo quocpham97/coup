@@ -17,14 +17,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           { roomId },
           {
             $set: {
-              players: room.players.map((player) =>
-                (room.currentAction?.isOpposing &&
-                  player.playerId === room.currentAction.challengerId) ||
-                (!room.currentAction?.isOpposing &&
-                  player.playerId === room.currentAction?.targetId)
-                  ? { ...player, health: player.health - 1 }
-                  : player,
-              ),
+              players: room.players.map((player) => {
+                if (
+                  (room.currentAction?.isOpposing &&
+                    player.playerId === room.currentAction.challengerId) ||
+                  (!room.currentAction?.isOpposing &&
+                    player.playerId === room.currentAction?.targetId)
+                )
+                  return {
+                    ...player,
+                    health:
+                      player.health - (room.currentAction.mainAction === ActionType.Kill ? 2 : 1),
+                  };
+                return player;
+              }),
             } as RoomUpdatePlayers,
           },
         ).exec();
