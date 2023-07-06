@@ -5,6 +5,7 @@ import {
   approve,
   blockExchangeCard,
   blockForeignAid,
+  blockKill,
   blockSteal,
   challenge,
   exchangeCard,
@@ -98,9 +99,13 @@ export function useAction() {
             channel.publish({ data: { action: 'Wait' } });
           });
         };
+
+      // TODO: need to recheck flow accept action and show card when target block main action
       case ActionType.BlockKill:
-        return () => {
-          console.log(ActionType.BlockKill);
+        return async () => {
+          await blockKill(roomId, ably.auth.clientId).then(() => {
+            channel.publish({ data: { action: 'Wait' } });
+          });
         };
       case ActionType.BlockExchangeCard:
         return async () => {

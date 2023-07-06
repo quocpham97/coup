@@ -169,3 +169,11 @@ export const blockSteal = async (roomId: string, playerId: string): Promise<void
     return Promise.reject(error);
   }
 };
+
+export const blockKill = async (roomId: string, playerId: string): Promise<void> => {
+  try {
+    return await axios.post(`/api/action/blockKill`, { roomId, playerId });
+  } catch (error) {
+    return Promise.reject(error);
+  }
+};

@@ -211,6 +211,11 @@ function RoomModule() {
                   roomId={roomId as string}
                   isHighlight
                   channel={channel}
+                  opposedAction={
+                    (room.currentAction?.isOpposing
+                      ? room.currentAction?.opposeAction
+                      : room.currentAction?.mainAction) as ActionType
+                  }
                 />
               ))}
               {!room.currentAction.isOpposing &&

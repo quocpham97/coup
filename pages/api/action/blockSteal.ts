@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import dbConnect from 'libs/dbConnect';
 import Room from 'models/room';
-import { Room as RoomDTO } from 'types';
+import { ActionType, Room as RoomDTO } from 'types';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
@@ -22,7 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 ...room.currentAction,
                 isOpposing: true,
                 opposerId: playerId,
-                opposeAction: room.currentAction?.mainAction,
+                opposeAction: ActionType.BlockSteal,
               },
             },
           },

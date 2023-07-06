@@ -22,7 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 ...room.currentAction,
                 isOpposing: true,
                 opposerId: playerId,
-                opposeAction: ActionType.BlockExchangeCard,
+                opposeAction: ActionType.BlockKill,
               },
             },
           },

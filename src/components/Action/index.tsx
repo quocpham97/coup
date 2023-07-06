@@ -12,12 +12,14 @@ function Action({
   isDisabled,
   isHighlight,
   channel,
+  opposedAction,
 }: {
   type: ActionType;
   roomId: string;
   isDisabled?: boolean;
   isHighlight?: boolean;
   channel: Types.RealtimeChannelCallbacks;
+  opposedAction?: ActionType;
 }) {
   const { getAction, getText } = useAction();
 
@@ -32,7 +34,7 @@ function Action({
       onClick={() => getAction({ type, roomId, channel })()}
       disabled={isDisabled}
     >
-      {getText(type)}
+      {getText(type)} {getText(opposedAction as ActionType)}
     </button>
   );
 }
@@ -40,6 +42,7 @@ function Action({
 Action.defaultProps = {
   isDisabled: false,
   isHighlight: false,
+  opposedAction: undefined,
 };
 
 export default Action;
