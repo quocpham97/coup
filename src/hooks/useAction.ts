@@ -5,6 +5,7 @@ import {
   approve,
   blockExchangeCard,
   blockForeignAid,
+  blockSteal,
   challenge,
   exchangeCard,
   kill,
@@ -37,10 +38,9 @@ export function useAction() {
     ActionType.BlockForeignAid,
     ActionType.Approve,
   ];
-  const blockActionList: Array<ActionType> = [
-    ActionType.BlockSteal,
-    ActionType.BlockForeignAid,
-    ActionType.BlockKill,
+  const blockActionList: Array<{ type: ActionType; opposedType: ActionType }> = [
+    { type: ActionType.BlockSteal, opposedType: ActionType.Steal },
+    { type: ActionType.BlockKill, opposedType: ActionType.Kill },
   ];
   const ably = assertConfiguration();
 
@@ -87,8 +87,10 @@ export function useAction() {
           });
         };
       case ActionType.BlockSteal:
-        return () => {
-          console.log(ActionType.BlockSteal);
+        return async () => {
+          await blockSteal(roomId, ably.auth.clientId).then(() => {
+            channel.publish({ data: { action: 'Wait' } });
+          });
         };
       case ActionType.BlockForeignAid:
         return async () => {

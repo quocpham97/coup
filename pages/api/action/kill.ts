@@ -36,6 +36,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                   isOpposing: false,
                   opposerId: '',
                   opposeAction: '',
+                  approvedPlayers: [],
                 },
                 endTimeTurn: endTime.toUTCString(),
               } as RoomUpdateCurrentAction,

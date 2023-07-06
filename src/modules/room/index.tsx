@@ -40,6 +40,7 @@ function RoomModule() {
     challengeActionGroup,
     blockExchangeCardActionGroup,
     blockForeignAidActionGroup,
+    blockActionList,
   } = useAction();
 
   useEffect(() => {
@@ -199,17 +200,36 @@ function RoomModule() {
             !room.currentAction.isChallenging &&
             room.players.map((pl) => pl.playerId).includes(ably.auth.clientId) &&
             !room.currentAction.approvedPlayers.includes(ably.auth.clientId)) ||
-            (!room.currentAction.isChallenging &&
-              room.currentAction.targetId === ably.auth.clientId)) &&
-          challengeActionGroup.map((action, index) => (
-            <Action
-              key={`${action}-${index + 1}`}
-              type={action}
-              roomId={roomId as string}
-              isHighlight
-              channel={channel}
-            />
-          ))}
+            (!room.currentAction.isOpposing &&
+              !room.currentAction.isChallenging &&
+              room.currentAction.targetId === ably.auth.clientId)) && (
+            <>
+              {challengeActionGroup.map((action, index) => (
+                <Action
+                  key={`${action}-${index + 1}`}
+                  type={action}
+                  roomId={roomId as string}
+                  isHighlight
+                  channel={channel}
+                />
+              ))}
+              {!room.currentAction.isOpposing &&
+                !room.currentAction.isChallenging &&
+                room.currentAction.targetId === ably.auth.clientId &&
+                blockActionList.map(
+                  (action, index) =>
+                    action.opposedType === room.currentAction?.mainAction && (
+                      <Action
+                        key={`${action.type}-${index + 1}`}
+                        type={action.type}
+                        roomId={roomId as string}
+                        isHighlight
+                        channel={channel}
+                      />
+                    ),
+                )}
+            </>
+          )}
 
         {room?.status === RoomStatusType.STARTED &&
           room.currentAction !== null &&

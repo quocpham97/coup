@@ -161,3 +161,11 @@ export const blockExchangeCard = async (roomId: string, playerId: string): Promi
     return Promise.reject(error);
   }
 };
+
+export const blockSteal = async (roomId: string, playerId: string): Promise<void> => {
+  try {
+    return await axios.post(`/api/action/blockSteal`, { roomId, playerId });
+  } catch (error) {
+    return Promise.reject(error);
+  }
+};
