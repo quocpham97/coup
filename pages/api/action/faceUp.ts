@@ -10,7 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     case 'POST':
       try {
         await dbConnect();
-        const { roomId } = req.body as { roomId: string; playerId: string };
+        const { roomId, playerId } = req.body as { roomId: string; playerId: string };
         const room = (await Room.findOne({ roomId })) as RoomDTO;
 
         switch (room.currentAction?.mainAction) {
@@ -21,6 +21,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 $set: {
                   players: room.players.map((player) => {
                     if (player.playerId === room.currentAction?.playerId)
+                      return {
+                        ...player,
+                        coins: player.coins + 2,
+                      };
+                    if (player.playerId === playerId)
                       return {
                         ...player,
                         health: player.health - 1,
@@ -37,33 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             break;
         }
 
-        // await Room.updateOne(
-        //   { roomId },
-        //   {
-        //     $set: {
-        //       players: room.players.map((player) => {
-        //         if (
-        //           (room.currentAction?.isOpposing &&
-        //             player.playerId === room.currentAction.challengerId) ||
-        //           (!room.currentAction?.isOpposing &&
-        //             player.playerId === room.currentAction?.targetId)
-        //         )
-        //           return {
-        //             ...player,
-        //             health:
-        //               player.health - (room.currentAction.mainAction === ActionType.Kill ? 2 : 1),
-        //           };
-        //         return player;
-        //       }),
-        //     } as RoomUpdatePlayers,
-        //   },
-        // ).exec();
-
-        res.status(200).json({
-          action: room.currentAction?.mainAction as ActionType,
-          playerId: room.currentAction?.playerId,
-          targetId: room.currentAction?.targetId,
-        });
+        res.status(200).json({});
       } catch (error) {
         res.status(400).json(null);
       }

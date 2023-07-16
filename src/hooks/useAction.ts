@@ -9,6 +9,7 @@ import {
   blockSteal,
   challenge,
   exchangeCard,
+  faceUp,
   kill,
   nextTurn,
   showCard,
@@ -30,7 +31,7 @@ export function useAction() {
     // ActionType.DrawCard,
   ];
   const challengeActionGroup: Array<ActionType> = [ActionType.Challenge, ActionType.Accept];
-  const proveActionGroup: Array<ActionType> = [ActionType.ShowCard, ActionType.Accept];
+  const proveActionGroup: Array<ActionType> = [ActionType.ShowCard, ActionType.FaceUp];
   const blockExchangeCardActionGroup: Array<ActionType> = [
     ActionType.BlockExchangeCard,
     ActionType.Approve,
@@ -159,6 +160,12 @@ export function useAction() {
             channel.publish({ data: { action: 'GetNewEndTime' } });
           });
         };
+      case ActionType.FaceUp:
+        return async () => {
+          await faceUp(roomId, ably.auth.clientId).then(() => {
+            channel.publish({ data: { action: 'Next' } });
+          });
+        };
 
       default:
         return () => {};
@@ -201,6 +208,8 @@ export function useAction() {
         return 'Approve';
       case ActionType.ShowCard:
         return 'Show Card';
+      case ActionType.FaceUp:
+        return 'Face Up';
 
       default:
         return null;

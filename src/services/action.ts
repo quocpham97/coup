@@ -53,12 +53,8 @@ export const takeForeignAid = async ({
 
 export const approve = async (roomId: string, playerId: string): Promise<void> => {
   try {
-    return await axios.post(`/api/action/approve`, { roomId, playerId }).then(async (res) => {
-      const { isApproved } = res.data as { isApproved: boolean };
-      if (isApproved) {
-        await takeForeignAid({ roomId, isApproved });
-        await nextTurn(roomId);
-      }
+    return await axios.post(`/api/action/approve`, { roomId, playerId }).then(async () => {
+      await nextTurn(roomId);
     });
   } catch (error) {
     return Promise.reject(error);
@@ -111,8 +107,6 @@ export const accept = async (roomId: string, playerId: string): Promise<void> =>
       .post<IResponseAction>(`/api/action/accept`, { roomId, playerId })
       .then(async (res) => {
         const { action, targetId, playerId: resPlayerId } = res.data;
-
-        if (action === ActionType.TakeForeignAid) await takeForeignAid({ roomId });
 
         if (action === ActionType.Steal && resPlayerId !== playerId)
           await steal(roomId, resPlayerId, targetId);
@@ -173,6 +167,16 @@ export const blockSteal = async (roomId: string, playerId: string): Promise<void
 export const blockKill = async (roomId: string, playerId: string): Promise<void> => {
   try {
     return await axios.post(`/api/action/blockKill`, { roomId, playerId });
+  } catch (error) {
+    return Promise.reject(error);
+  }
+};
+
+export const faceUp = async (roomId: string, playerId: string): Promise<void> => {
+  try {
+    return await axios.post(`/api/action/faceUp`, { roomId, playerId }).then(async () => {
+      await nextTurn(roomId);
+    });
   } catch (error) {
     return Promise.reject(error);
   }

@@ -14,6 +14,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         const room = (await Room.findOne({ roomId })) as RoomDTO;
 
+        switch (room.currentAction?.mainAction) {
+          case ActionType.TakeForeignAid:
+            break;
+
+          default:
+            break;
+        }
+
         res.status(200).json({
           action: room.currentAction?.mainAction as ActionType,
           playerId: room.currentAction?.playerId,

@@ -1,10 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import dbConnect from 'libs/dbConnect';
 import Room from 'models/room';
-import { ActionType, Room as RoomDTO } from 'types';
-
-type RoomUpdateCurrentAction = Pick<RoomDTO, 'currentAction' | 'endTimeTurn'>;
-type RoomUpdatePlayers = Pick<RoomDTO, 'players' | 'currentAction'>;
+import { ActionType, Room as RoomDTO, RoomUpdateCurrentAction } from 'types';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
@@ -13,11 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     case 'POST':
       try {
         await dbConnect();
-        const { roomId, playerId, isApproved } = req.body as {
-          roomId: string;
-          playerId: string;
-          isApproved: boolean;
-        };
+        const { roomId, playerId } = req.body as { roomId: string; playerId: string };
 
         const room = (await Room.findOne({ roomId })) as RoomDTO;
 
@@ -42,23 +35,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 },
                 endTimeTurn: endTime.toUTCString(),
               } as RoomUpdateCurrentAction,
-            },
-          ).exec();
-        } else if (
-          isApproved ||
-          (room.currentAction?.isOpposing && room.currentAction.isChallenging)
-        ) {
-          await Room.updateOne(
-            { roomId },
-            {
-              $set: {
-                players: room.players.map((player) =>
-                  player.playerId === room.currentTurn
-                    ? { ...player, coins: player.coins + 2 }
-                    : player,
-                ),
-                currentAction: null,
-              } as RoomUpdatePlayers,
             },
           ).exec();
         }

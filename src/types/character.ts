@@ -25,4 +25,5 @@ export enum ActionType {
   Approve = 'Approve',
   Accept = 'Accept',
   ShowCard = 'ShowCard',
+  FaceUp = 'FaceUp',
 }
