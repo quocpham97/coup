@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import dbConnect from 'libs/dbConnect';
 import Room from 'models/room';
-import { ActionType, RoomUpdateCurrentAction, Room as RoomDTO, RoomUpdatePlayers } from 'types';
+import { ActionType, RoomUpdateCurrentAction, Room as RoomDTO } from 'types';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
@@ -42,30 +42,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               } as RoomUpdateCurrentAction,
             },
           ).exec();
-        } else if (room.currentAction) {
-          if (playerId === room.currentTurn) {
-            const targetPlayer = room.players.find(
-              (pl) => pl.playerId === room.currentAction?.targetId,
-            );
-            const earnedCoin = targetPlayer && targetPlayer.coins > 1 ? 2 : targetPlayer?.coins;
-            const updatedPlayers = room.players.map((player) => {
-              if (player.playerId === room.currentAction?.targetId) {
-                return { ...player, coins: player.coins - Number(earnedCoin) };
-              }
-              if (player.playerId === room.currentTurn)
-                return { ...player, coins: player.coins + Number(earnedCoin) };
-              return player;
-            });
-            await Room.updateOne(
-              { roomId },
-              {
-                $set: {
-                  players: updatedPlayers,
-                  currentAction: null,
-                } as RoomUpdatePlayers,
-              },
-            ).exec();
-          }
         }
 
         res.status(200).json({});

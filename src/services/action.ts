@@ -53,8 +53,9 @@ export const takeForeignAid = async ({
 
 export const approve = async (roomId: string, playerId: string): Promise<void> => {
   try {
-    return await axios.post(`/api/action/approve`, { roomId, playerId }).then(async () => {
-      await nextTurn(roomId);
+    return await axios.post(`/api/action/approve`, { roomId, playerId }).then(async (res) => {
+      const { isApproved } = res.data as { isApproved: boolean };
+      if (isApproved) await nextTurn(roomId);
     });
   } catch (error) {
     return Promise.reject(error);
@@ -108,9 +109,6 @@ export const accept = async (roomId: string, playerId: string): Promise<void> =>
       .then(async (res) => {
         const { action, targetId, playerId: resPlayerId } = res.data;
 
-        if (action === ActionType.Steal && resPlayerId !== playerId)
-          await steal(roomId, resPlayerId, targetId);
-
         if (action === ActionType.Kill) {
           if (resPlayerId === playerId) {
             await kill(roomId, resPlayerId, '');
@@ -132,10 +130,7 @@ export const showCard = async (roomId: string, playerId: string): Promise<void> 
     return await axios
       .post<IResponseAction>(`/api/action/showCard`, { roomId, playerId })
       .then(async (res) => {
-        const { action, targetId, playerId: resPlayerId } = res.data;
-
-        if (action === ActionType.Steal && resPlayerId === playerId)
-          await steal(roomId, playerId, targetId);
+        const { action, playerId: resPlayerId } = res.data;
 
         if (action === ActionType.Kill && resPlayerId === playerId) {
           await kill(roomId, resPlayerId, '');

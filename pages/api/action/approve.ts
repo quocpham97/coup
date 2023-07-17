@@ -1,7 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import dbConnect from 'libs/dbConnect';
 import Room from 'models/room';
-import { ActionType, Room as RoomDTO, RoomUpdateCurrentAction, RoomUpdatePlayers } from 'types';
+import {
+  ActionType,
+  Room as RoomDTO,
+  RoomUpdateCurrentAction,
+  RoomUpdatePlayers,
+  listActionNeedApprove,
+} from 'types';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
@@ -31,11 +37,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         const roomAfterAction = (await Room.findOne({ roomId })) as RoomDTO;
 
-        if (
-          roomAfterAction.currentAction &&
+        const isApproved =
+          listActionNeedApprove.includes(room.currentAction?.mainAction as ActionType) &&
           roomAfterAction.players.filter((pl) => pl.health > 0 && pl.playerId !== playerId)
-            .length === roomAfterAction.currentAction?.approvedPlayers.length
-        ) {
+            .length === roomAfterAction.currentAction?.approvedPlayers.length;
+
+        if (isApproved) {
           switch (room.currentAction?.mainAction) {
             case ActionType.TakeForeignAid: {
               await Room.updateOne(
@@ -59,7 +66,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           }
         }
 
-        res.status(200).json({});
+        res.status(200).json({ isApproved });
       } catch (error) {
         res.status(400).json(null);
       }
