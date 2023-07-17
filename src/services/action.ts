@@ -106,17 +106,7 @@ export const accept = async (roomId: string, playerId: string): Promise<void> =>
   try {
     return await axios
       .post<IResponseAction>(`/api/action/accept`, { roomId, playerId })
-      .then(async (res) => {
-        const { action, targetId, playerId: resPlayerId } = res.data;
-
-        if (action === ActionType.Kill) {
-          if (resPlayerId === playerId) {
-            await kill(roomId, resPlayerId, '');
-          } else if (targetId === playerId) {
-            await kill(roomId, resPlayerId, targetId);
-          }
-        }
-
+      .then(async () => {
         await nextTurn(roomId);
       });
   } catch (error) {
@@ -129,13 +119,7 @@ export const showCard = async (roomId: string, playerId: string): Promise<void> 
   try {
     return await axios
       .post<IResponseAction>(`/api/action/showCard`, { roomId, playerId })
-      .then(async (res) => {
-        const { action, playerId: resPlayerId } = res.data;
-
-        if (action === ActionType.Kill && resPlayerId === playerId) {
-          await kill(roomId, resPlayerId, '');
-        }
-
+      .then(async () => {
         await nextTurn(roomId);
       });
   } catch (error) {

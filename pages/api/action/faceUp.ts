@@ -81,6 +81,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             break;
           }
 
+          case ActionType.Kill: {
+            await Room.updateOne(
+              { roomId },
+              {
+                $set: {
+                  players: room.players.map((player) => {
+                    if (player.playerId === room.currentAction?.targetId)
+                      return {
+                        ...player,
+                        health: room.currentAction.isOpposing ? player.health - 2 : player.health,
+                      };
+                    if (player.playerId === room.currentAction?.playerId)
+                      return {
+                        ...player,
+                        coins: player.coins - 3,
+                        health: !room.currentAction.isOpposing ? player.health - 1 : player.health,
+                      };
+                    return player;
+                  }),
+                  currentAction: null,
+                } as RoomUpdatePlayers,
+              },
+            ).exec();
+            break;
+          }
+
           default:
             break;
         }
