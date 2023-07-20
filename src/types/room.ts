@@ -40,5 +40,9 @@ export enum RoomStatusType {
 export type RoomUpdateCurrentAction = Pick<Room, 'currentAction' | 'endTimeTurn'>;
 export type RoomUpdatePlayers = Pick<Room, 'players' | 'currentAction'>;
 
-export const listActionNeedApprove = [ActionType.TakeForeignAid, ActionType.ExchangeCard];
+export const listActionNeedApprove = [
+  ActionType.TakeForeignAid,
+  ActionType.ExchangeCard,
+  ActionType.TakeThreeCoins,
+];
 export const listActionWithTarget = [ActionType.Steal, ActionType.Kill, ActionType.MakeCoup];

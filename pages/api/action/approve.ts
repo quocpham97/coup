@@ -61,6 +61,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               break;
             }
 
+            case ActionType.TakeThreeCoins: {
+              await Room.updateOne(
+                { roomId },
+                {
+                  $set: {
+                    players: room.players.map((player) =>
+                      player.playerId === room.currentTurn
+                        ? { ...player, coins: player.coins + 3 }
+                        : player,
+                    ),
+                    currentAction: null,
+                  } as RoomUpdatePlayers,
+                },
+              ).exec();
+              break;
+            }
+
             default:
               break;
           }

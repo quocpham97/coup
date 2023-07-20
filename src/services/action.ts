@@ -31,21 +31,9 @@ export const takeIncome = async (roomId: string, playerId: string): Promise<void
   }
 };
 
-export const takeForeignAid = async ({
-  roomId,
-  playerId,
-  isApproved,
-}: {
-  roomId: string;
-  playerId?: string;
-  isApproved?: boolean;
-}): Promise<void> => {
+export const takeForeignAid = async (roomId: string, playerId: string): Promise<void> => {
   try {
-    return await axios.post(`/api/action/takeForeignAid`, {
-      roomId,
-      playerId,
-      isApproved,
-    });
+    return await axios.post(`/api/action/takeForeignAid`, { roomId, playerId });
   } catch (error) {
     return Promise.reject(error);
   }
@@ -156,6 +144,14 @@ export const faceUp = async (roomId: string, playerId: string): Promise<void> =>
     return await axios.post(`/api/action/faceUp`, { roomId, playerId }).then(async () => {
       await nextTurn(roomId);
     });
+  } catch (error) {
+    return Promise.reject(error);
+  }
+};
+
+export const takeThreeCoins = async (roomId: string, playerId: string): Promise<void> => {
+  try {
+    return await axios.post(`/api/action/takeThreeCoins`, { roomId, playerId });
   } catch (error) {
     return Promise.reject(error);
   }

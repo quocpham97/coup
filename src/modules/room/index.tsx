@@ -40,6 +40,7 @@ function RoomModule() {
     challengeActionGroup,
     blockExchangeCardActionGroup,
     blockForeignAidActionGroup,
+    blockTakeThreeCoinsActionGroup,
     blockActionList,
   } = useAction();
 
@@ -184,6 +185,24 @@ function RoomModule() {
           room.players.map((pl) => pl.playerId).includes(ably.auth.clientId) &&
           !room.currentAction.approvedPlayers.includes(ably.auth.clientId) &&
           blockForeignAidActionGroup.map((action, index) => (
+            <Action
+              key={`${action}-${index + 1}`}
+              type={action}
+              roomId={roomId as string}
+              isHighlight
+              channel={channel}
+            />
+          ))}
+
+        {room?.status === RoomStatusType.STARTED &&
+          room?.currentTurn !== ably.auth.clientId &&
+          room.currentAction !== null &&
+          room.currentAction.mainAction === ActionType.TakeThreeCoins &&
+          !room.currentAction.isOpposing &&
+          !room.currentAction.isChallenging &&
+          room.players.map((pl) => pl.playerId).includes(ably.auth.clientId) &&
+          !room.currentAction.approvedPlayers.includes(ably.auth.clientId) &&
+          blockTakeThreeCoinsActionGroup.map((action, index) => (
             <Action
               key={`${action}-${index + 1}`}
               type={action}

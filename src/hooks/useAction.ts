@@ -17,6 +17,7 @@ import {
   steal,
   takeForeignAid,
   takeIncome,
+  takeThreeCoins,
 } from 'services/action';
 import { ActionType } from 'types';
 
@@ -24,10 +25,11 @@ export function useAction() {
   const normalActionList: Array<{ type: ActionType; isHasTarget: boolean }> = [
     { type: ActionType.TakeIncome, isHasTarget: false },
     { type: ActionType.TakeForeignAid, isHasTarget: false },
-    // ActionType.MakeCoup,
+    { type: ActionType.TakeThreeCoins, isHasTarget: false },
     { type: ActionType.ExchangeCard, isHasTarget: false },
     { type: ActionType.Steal, isHasTarget: true },
     { type: ActionType.Kill, isHasTarget: true },
+    { type: ActionType.MakeCoup, isHasTarget: true },
     // ActionType.DrawCard,
   ];
   const challengeActionGroup: Array<ActionType> = [ActionType.Challenge, ActionType.Accept];
@@ -40,9 +42,15 @@ export function useAction() {
     ActionType.BlockForeignAid,
     ActionType.Approve,
   ];
+  const blockTakeThreeCoinsActionGroup: Array<ActionType> = [
+    ActionType.Challenge,
+    ActionType.Approve,
+  ];
   const blockActionList: Array<{ type: ActionType; opposedType: ActionType }> = [
     { type: ActionType.BlockSteal, opposedType: ActionType.Steal },
     { type: ActionType.BlockKill, opposedType: ActionType.Kill },
+    // TODO: refactor actions have  its protest action
+    { type: ActionType.BlockForeignAid, opposedType: ActionType.TakeForeignAid },
   ];
   const ably = assertConfiguration();
 
@@ -68,7 +76,7 @@ export function useAction() {
         };
       case ActionType.TakeForeignAid:
         return async () => {
-          await takeForeignAid({ roomId, playerId: ably.auth.clientId }).then(() => {
+          await takeForeignAid(roomId, ably.auth.clientId).then(() => {
             channel.publish({ data: { action: 'Wait' } });
           });
         };
@@ -166,6 +174,12 @@ export function useAction() {
             channel.publish({ data: { action: 'Next' } });
           });
         };
+      case ActionType.TakeThreeCoins:
+        return async () => {
+          await takeThreeCoins(roomId, ably.auth.clientId).then(() => {
+            channel.publish({ data: { action: 'Wait' } });
+          });
+        };
 
       default:
         return () => {};
@@ -210,6 +224,8 @@ export function useAction() {
         return 'Show Card';
       case ActionType.FaceUp:
         return 'Face Up';
+      case ActionType.TakeThreeCoins:
+        return 'Take 3 coins';
 
       default:
         return null;
@@ -222,6 +238,7 @@ export function useAction() {
     challengeActionGroup,
     blockForeignAidActionGroup,
     blockExchangeCardActionGroup,
+    blockTakeThreeCoinsActionGroup,
     blockActionList,
     getAction,
     getText,

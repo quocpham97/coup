@@ -9,6 +9,7 @@ export enum Character {
 export enum ActionType {
   TakeIncome = 'TakeIncome',
   TakeForeignAid = 'TakeForeignAid',
+  TakeThreeCoins = 'TakeThreeCoins',
   MakeCoup = 'MakeCoup',
   Steal = 'Steal',
   Kill = 'Kill',
