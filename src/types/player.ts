@@ -2,12 +2,11 @@ import { Character } from './character';
 
 export type Player = {
   playerId: string;
-  cards?: Character[];
+  cards: Character[];
   coins: number;
   name?: string;
   health: number;
-  assets?: {
-    dead: string;
+  stats?: {
     win: string;
   };
 };

@@ -1,11 +1,11 @@
 import mongoose from 'mongoose';
-import { ActionType } from './character';
+import { ActionType, Character } from './character';
 import { Player } from './player';
 
 export interface Room {
   roomId: string;
   status: RoomStatusType;
-  cards: string[];
+  cards: Character[];
   host: string;
   playerIds: string[];
   players: Player[];

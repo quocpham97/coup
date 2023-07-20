@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import dbConnect from 'libs/dbConnect';
 import Room from 'models/room';
-import { Player, Room as RoomDTO, RoomActionType } from 'types';
+import { Player, Room as RoomDTO, RoomActionType, Character } from 'types';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
@@ -20,7 +20,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         switch (action) {
           case RoomActionType.JOIN: {
-            const players = [...room.players, { playerId, coins: 0, health: 2 } as Player];
+            const players = [
+              ...room.players,
+              { playerId, coins: 0, health: 2, cards: [] } as Player,
+            ];
             const playerIds = [...room.playerIds, playerId];
             const host = players.length === 1 ? players[0].playerId : room.host;
             await Room.updateOne({ roomId }, { $set: { players, playerIds, host } }).exec();
@@ -48,7 +51,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                   status: players.length === 0 ? 'AVAILABLE' : room.status,
                   endTimeTurn: players.length === 0 ? null : room.endTimeTurn,
                   currentAction: players.length === 0 ? null : room.currentAction,
-                },
+                  cards: [] as Character[],
+                } as RoomDTO,
               },
             ).exec();
             break;
