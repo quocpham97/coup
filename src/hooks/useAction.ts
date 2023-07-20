@@ -11,6 +11,7 @@ import {
   exchangeCard,
   faceUp,
   kill,
+  makeCoup,
   nextTurn,
   showCard,
   startGame,
@@ -81,8 +82,10 @@ export function useAction() {
           });
         };
       case ActionType.MakeCoup:
-        return () => {
-          console.log(ActionType.MakeCoup);
+        return async () => {
+          await makeCoup(roomId, ably.auth.clientId, targetId as string).then(() => {
+            channel.publish({ data: { action: 'Next' } });
+          });
         };
       case ActionType.Steal:
         return async () => {

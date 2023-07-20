@@ -21,10 +21,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 $set: {
                   players: room.players.map((player) => {
                     if (player.playerId === room.currentAction?.playerId)
-                      return {
-                        ...player,
-                        health: player.health - 1,
-                      };
+                      return { ...player, health: player.health - 1 };
                     return player;
                   }),
                 } as RoomUpdatePlayers,
@@ -55,10 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             } else if (room.currentAction.isOpposing && room.currentAction.isChallenging) {
               updatedPlayers = room.players.map((player) => {
                 if (player.playerId === room.currentAction?.playerId) {
-                  return {
-                    ...player,
-                    health: player.health - 1,
-                  };
+                  return { ...player, health: player.health - 1 };
                 }
                 return player;
               });

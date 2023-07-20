@@ -156,3 +156,19 @@ export const takeThreeCoins = async (roomId: string, playerId: string): Promise<
     return Promise.reject(error);
   }
 };
+
+export const makeCoup = async (
+  roomId: string,
+  playerId: string,
+  targetId: string,
+): Promise<void> => {
+  try {
+    return await axios
+      .post(`/api/action/makeCoup`, { roomId, playerId, targetId })
+      .then(async () => {
+        await nextTurn(roomId);
+      });
+  } catch (error) {
+    return Promise.reject(error);
+  }
+};
