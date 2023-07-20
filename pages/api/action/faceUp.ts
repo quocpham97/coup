@@ -115,6 +115,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             break;
           }
 
+          case ActionType.ExchangeCard: {
+            await Room.updateOne(
+              { roomId },
+              {
+                $set: {
+                  players: room.players.map((player) => {
+                    if (player.playerId === room.currentAction?.playerId)
+                      return { ...player, health: player.health - 1 };
+                    return player;
+                  }),
+                  currentAction: null,
+                } as RoomUpdatePlayers,
+              },
+            ).exec();
+            break;
+          }
+
           default:
             break;
         }

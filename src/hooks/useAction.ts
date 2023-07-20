@@ -36,7 +36,7 @@ export function useAction() {
   const challengeActionGroup: Array<ActionType> = [ActionType.Challenge, ActionType.Accept];
   const proveActionGroup: Array<ActionType> = [ActionType.ShowCard, ActionType.FaceUp];
   const blockExchangeCardActionGroup: Array<ActionType> = [
-    ActionType.BlockExchangeCard,
+    ActionType.Challenge,
     ActionType.Approve,
   ];
   const blockForeignAidActionGroup: Array<ActionType> = [
@@ -133,7 +133,7 @@ export function useAction() {
         };
       case ActionType.DrawCard:
         return () => {
-          console.log(ActionType.DrawCard);
+          // TODO: handle draw card action
         };
       case ActionType.Challenge:
         return async () => {
