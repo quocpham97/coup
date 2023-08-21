@@ -73,16 +73,12 @@ export default function Home() {
         Save voucher
       </button>
 
-      <div
-        ref={componentRef}
-        className="w-[488px] h-[1000px] absolute max-w-full top-[-100%] left-[-100%]"
-      >
+      <div ref={componentRef} className="w-[488px] h-[1000px] absolute top-[-100%] left-[-100%]">
         <div
           style={{
             width: 488,
             height: 1000,
             backgroundColor: 'white',
-            maxWidth: '100%',
             borderRadius: '16px',
           }}
         >
