@@ -52,7 +52,7 @@ export default function Home() {
       try {
         document.execCommand('copy');
       } catch (err) {
-        console.log(err);
+        alert(err);
       } finally {
         textarea.remove();
       }
