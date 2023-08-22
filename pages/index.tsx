@@ -34,7 +34,7 @@ export default function Home() {
       zalo_h5_event_handler() {},
     };
 
-    if (navigator.clipboard) {
+    if (navigator && navigator.clipboard) {
       await navigator.clipboard.writeText(value);
     } else {
       const textarea = document.createElement('textarea');
@@ -49,6 +49,7 @@ export default function Home() {
       // highlight the content of the textarea element
       textarea.select();
 
+      alert(value);
       try {
         document.execCommand('copy');
       } catch (err) {
