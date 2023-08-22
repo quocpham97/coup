@@ -35,6 +35,7 @@ export default function Home() {
     };
 
     if (navigator && navigator.clipboard) {
+      alert('has navigator');
       await navigator.clipboard.writeText(value);
     } else {
       const textarea = document.createElement('textarea');
