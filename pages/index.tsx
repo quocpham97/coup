@@ -15,9 +15,21 @@ export default function Home() {
   const exportAsImage = async (element: HTMLElement, imageFileName: string) => {
     const canvas = await html2canvas(element, { allowTaint: true, logging: true, useCORS: true });
 
+    // const image = canvas.toDataURL('image/png', 1.0);
+    // const fakeLink = window.document.createElement('a');
+    // fakeLink.download = `${imageFileName} - ${new Date().getTime()}`;
+
+    // fakeLink.href = image;
+
+    // fakeLink.click();
+
     canvas.toBlob((blob) => {
       blob && saveAs(blob, `${imageFileName} - ${new Date().getTime()}`);
     });
+  };
+
+  const handleCopy = async (value: string) => {
+    navigator && (await navigator.clipboard.writeText(value));
   };
 
   if (status === 'authenticated') {
@@ -73,7 +85,15 @@ export default function Home() {
         Save voucher
       </button>
 
-      <div ref={componentRef} className="w-[488px] h-[1000px] absolute top-[-100%] left-[-100%]">
+      <button
+        type="button"
+        onClick={() => handleCopy(format(new Date(), 'dd/MM/yyyy - HH:mm:ss'))}
+        className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+      >
+        Copy voucher
+      </button>
+
+      <div ref={componentRef} className="w-[488px] h-[1000px] absolute top-[-200%] left-[-200%]">
         <div
           style={{
             width: 488,
