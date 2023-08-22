@@ -28,37 +28,37 @@ export default function Home() {
     });
   };
 
-  const handleCopy = async (value: string) => {
+  const handleCopy = (value: string) => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
     (window as any).zaloJSV2 = {
       zalo_h5_event_handler() {},
     };
 
-    if (navigator && navigator.clipboard) {
-      alert('has navigator');
-      await navigator.clipboard.writeText(value);
-    } else {
-      const textarea = document.createElement('textarea');
-      textarea.value = value;
+    // if (navigator && navigator.clipboard) {
+    //   alert('has navigator');
+    //   await navigator.clipboard.writeText(value);
+    // } else {
+    const textarea = document.createElement('textarea');
+    textarea.value = value;
 
-      // Move the textarea outside the viewport to make it invisible
-      textarea.style.position = 'absolute';
-      textarea.style.left = '-99999999px';
+    // Move the textarea outside the viewport to make it invisible
+    textarea.style.position = 'absolute';
+    textarea.style.left = '-99999999px';
 
-      document.body.prepend(textarea);
+    document.body.prepend(textarea);
 
-      // highlight the content of the textarea element
-      textarea.select();
+    // highlight the content of the textarea element
+    textarea.select();
 
-      alert(value);
-      try {
-        document.execCommand('copy');
-      } catch (err) {
-        alert(err);
-      } finally {
-        textarea.remove();
-      }
+    alert(value);
+    try {
+      document.execCommand('copy');
+    } catch (err) {
+      alert(err);
+    } finally {
+      textarea.remove();
     }
+    // }
   };
 
   if (status === 'authenticated') {
