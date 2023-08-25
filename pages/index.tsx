@@ -28,16 +28,7 @@ export default function Home() {
     });
   };
 
-  const handleCopy = (value: string) => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
-    (window as any).zaloJSV2 = {
-      zalo_h5_event_handler() {},
-    };
-
-    // if (navigator && navigator.clipboard) {
-    //   alert('has navigator');
-    //   await navigator.clipboard.writeText(value);
-    // } else {
+  const executeCopy = (value: string) => {
     const textarea = document.createElement('textarea');
     textarea.value = value;
 
@@ -50,15 +41,31 @@ export default function Home() {
     // highlight the content of the textarea element
     textarea.select();
 
-    alert(value);
     try {
       document.execCommand('copy');
     } catch (err) {
-      alert(err);
+      /* copy failed */
     } finally {
       textarea.remove();
     }
-    // }
+  };
+
+  const handleCopy = (value: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+    (window as any).zaloJSV2 = {
+      zalo_h5_event_handler() {},
+    };
+
+    if (navigator && navigator.clipboard) {
+      navigator.clipboard.writeText(value).then(
+        () => {},
+        () => {
+          executeCopy(value);
+        },
+      );
+    } else {
+      executeCopy(value);
+    }
   };
 
   if (status === 'authenticated') {
