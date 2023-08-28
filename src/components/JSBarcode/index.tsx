@@ -16,7 +16,7 @@ function JSBarcode({ value, options }: { value: string; options?: object }) {
   }, [value, options]);
 
   return (
-    <div className="flex items-center">
+    <div className="flex items-center justify-center">
       <svg ref={barcodeRef} />
     </div>
   );
