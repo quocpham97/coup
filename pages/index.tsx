@@ -46,6 +46,7 @@ export default function Home() {
 
     try {
       document.execCommand('copy');
+      alert('copy successfully');
     } catch (err) {
       /* copy failed */
       alert('copy failed');
