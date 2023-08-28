@@ -48,6 +48,7 @@ export default function Home() {
       document.execCommand('copy');
     } catch (err) {
       /* copy failed */
+      alert('copy failed');
     } finally {
       textarea.remove();
     }
@@ -61,7 +62,9 @@ export default function Home() {
 
     if (navigator && navigator.clipboard) {
       navigator.clipboard.writeText(value).then(
-        () => {},
+        () => {
+          alert('copy successfully');
+        },
         () => {
           executeCopy(value);
         },
