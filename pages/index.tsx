@@ -272,7 +272,7 @@ export default function Home() {
         </div>
       </div>
 
-      <ModalVoucher isOpen={isOpen} setIsOpen={setIsOpen} handleCopy={handleCopy} />
+      <ModalVoucher isOpen={isOpen} setIsOpen={setIsOpen} />
     </section>
   );
 }
