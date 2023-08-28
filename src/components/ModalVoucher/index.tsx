@@ -12,50 +12,12 @@ const CDN_URL_CMS = 'https://cdn.vnggames.com/cms';
 function ModalVoucher({
   isOpen,
   setIsOpen,
+  handleCopy,
 }: {
   isOpen: boolean;
   setIsOpen: (nextValue?: boolean) => void;
+  handleCopy: (value: string) => void;
 }) {
-  const executeCopy = (value: string) => {
-    const textarea = document.createElement('textarea');
-    textarea.value = value;
-
-    // Move the textarea outside the viewport to make it invisible
-    textarea.style.position = 'absolute';
-    textarea.style.left = '-99999999px';
-
-    document.body.prepend(textarea);
-
-    // highlight the content of the textarea element
-    textarea.select();
-
-    try {
-      document.execCommand('copy');
-    } catch (err) {
-      /* copy failed */
-    } finally {
-      textarea.remove();
-    }
-  };
-
-  const handleCopy = (value: string) => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
-    (window as any).zaloJSV2 = {
-      zalo_h5_event_handler() {},
-    };
-
-    if (navigator && navigator.clipboard) {
-      navigator.clipboard.writeText(value).then(
-        () => {},
-        () => {
-          executeCopy(value);
-        },
-      );
-    } else {
-      executeCopy(value);
-    }
-  };
-
   return (
     <ModalCustom
       isOpen={isOpen}
