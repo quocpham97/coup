@@ -2,10 +2,11 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable @next/next/no-img-element */
-import React from 'react';
+import React, { useEffect } from 'react';
 import { format, subHours } from 'date-fns';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+// import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { useCopyToClipboard } from 'react-use';
 import ModalCustom from 'components/ModalCustom';
 import JSBarcode from 'components/JSBarcode';
 
@@ -18,6 +19,12 @@ function ModalVoucher({
   isOpen: boolean;
   setIsOpen: (nextValue?: boolean) => void;
 }) {
+  const [copiedText, copy] = useCopyToClipboard();
+
+  useEffect(() => {
+    if (copiedText.value) alert('copy ok!!!');
+  }, [copiedText]);
+
   return (
     <ModalCustom
       isOpen={isOpen}
@@ -102,11 +109,14 @@ function ModalVoucher({
                     <p className="text-2xl font-bold text-center text-black tracking-[4px]">
                       5361104261
                     </p>
-                    <CopyToClipboard text={format(new Date(), 'dd/MM/yyyy - HH:mm:ss')}>
-                      {/* <div onClick={() => handleCopy(format(new Date(), 'dd/MM/yyyy - HH:mm:ss'))}> */}
+                    {/* <CopyToClipboard
+                      text={format(new Date(), 'dd/MM/yyyy - HH:mm:ss')}
+                      onCopy={() => alert('copy ok!!!')}
+                    > */}
+                    <div onClick={() => copy(format(new Date(), 'dd/MM/yyyy - HH:mm:ss'))}>
                       <ContentCopyIcon sx={{ cursor: 'pointer' }} />
-                      {/* </div> */}
-                    </CopyToClipboard>
+                    </div>
+                    {/* </CopyToClipboard> */}
                   </div>
                 </div>
               </div>
