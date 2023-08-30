@@ -6,6 +6,7 @@ import html2canvas from 'html2canvas';
 import { saveAs } from 'file-saver';
 import { useBoolean } from 'react-use';
 import { useRouter } from 'next/router';
+import { useMediaQuery, useTheme } from '@mui/material';
 import JSBarcode from 'components/JSBarcode';
 import ModalVoucher from 'components/ModalVoucher';
 
@@ -16,16 +17,18 @@ export default function Home() {
   const componentRef = createRef<HTMLDivElement>();
   const [isOpen, setIsOpen] = useBoolean(false);
   const router = useRouter();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const exportAsImage = async (element: HTMLElement, imageFileName: string) => {
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
-      (window as any).zaloJSV2 = {
-        zalo_h5_event_handler() {
-          router.push('/voucher');
-        },
-      };
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+    (window as any).zaloJSV2 = {
+      zalo_h5_event_handler() {},
+    };
 
+    if (isMobile) {
+      router.push('/voucher');
+    } else {
       const canvas = await html2canvas(element, { allowTaint: true, logging: true, useCORS: true });
 
       // const image = canvas.toDataURL('image/png', 1.0);
@@ -39,8 +42,6 @@ export default function Home() {
       canvas.toBlob((blob) => {
         blob && saveAs(blob, `${imageFileName}`);
       });
-    } catch (error) {
-      router.push('/voucher');
     }
   };
 
@@ -88,7 +89,6 @@ export default function Home() {
       <button
         id="myInput"
         type="button"
-        // onClick={() => router.push('/voucher')}
         onClick={() =>
           componentRef &&
           componentRef.current &&
