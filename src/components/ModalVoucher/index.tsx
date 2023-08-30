@@ -5,8 +5,8 @@
 import React, { useEffect } from 'react';
 import { format, subHours } from 'date-fns';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-// import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { useCopyToClipboard } from 'react-use';
+import { useRouter } from 'next/router';
 import ModalCustom from 'components/ModalCustom';
 import JSBarcode from 'components/JSBarcode';
 
@@ -20,6 +20,7 @@ function ModalVoucher({
   setIsOpen: (nextValue?: boolean) => void;
 }) {
   const [copiedText, copy] = useCopyToClipboard();
+  const router = useRouter();
 
   useEffect(() => {
     if (copiedText.value) alert('copy ok!!!');
@@ -109,14 +110,9 @@ function ModalVoucher({
                     <p className="text-2xl font-bold text-center text-black tracking-[4px]">
                       5361104261
                     </p>
-                    {/* <CopyToClipboard
-                      text={format(new Date(), 'dd/MM/yyyy - HH:mm:ss')}
-                      onCopy={() => alert('copy ok!!!')}
-                    > */}
                     <div onClick={() => copy(format(new Date(), 'dd/MM/yyyy - HH:mm:ss'))}>
                       <ContentCopyIcon sx={{ cursor: 'pointer' }} />
                     </div>
-                    {/* </CopyToClipboard> */}
                   </div>
                 </div>
               </div>
@@ -161,6 +157,15 @@ function ModalVoucher({
               Vui lòng xuất trình mã code cho thu ngân tại cửa hàng đổi quà.
             </p>
           </div>
+
+          <button
+            id="myInput"
+            type="button"
+            onClick={() => router.push('/voucher')}
+            className="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+          >
+            Save voucher
+          </button>
         </div>
       </div>
     </ModalCustom>

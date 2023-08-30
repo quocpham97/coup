@@ -1,112 +1,30 @@
 /* eslint-disable @next/next/no-img-element */
-import { useSession, signIn, signOut } from 'next-auth/react';
 import { format, subHours } from 'date-fns';
-import { createRef } from 'react';
+import React, { createRef, useEffect, useState } from 'react';
 import html2canvas from 'html2canvas';
-import { saveAs } from 'file-saver';
-import { useBoolean } from 'react-use';
-import { useRouter } from 'next/router';
 import JSBarcode from 'components/JSBarcode';
-import ModalVoucher from 'components/ModalVoucher';
 
 const CDN_URL_CMS = 'https://cdn.vnggames.com/cms';
 
-export default function Home() {
-  const { data: session, status } = useSession();
+function Voucher() {
   const componentRef = createRef<HTMLDivElement>();
-  const [isOpen, setIsOpen] = useBoolean(false);
-  const router = useRouter();
+  const [dataImage, setDataImage] = useState('');
 
-  const exportAsImage = async (element: HTMLElement, imageFileName: string) => {
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
-      (window as any).zaloJSV2 = {
-        zalo_h5_event_handler() {
-          router.push('/voucher');
-        },
-      };
-
-      const canvas = await html2canvas(element, { allowTaint: true, logging: true, useCORS: true });
-
-      // const image = canvas.toDataURL('image/png', 1.0);
-      // const fakeLink = window.document.createElement('a');
-      // fakeLink.download = `${imageFileName} - ${new Date().getTime()}`;
-
-      // fakeLink.href = image;
-
-      // fakeLink.click();
-
-      canvas.toBlob((blob) => {
-        blob && saveAs(blob, `${imageFileName}`);
+  useEffect(() => {
+    if (componentRef.current) {
+      html2canvas(componentRef.current, {
+        allowTaint: true,
+        logging: true,
+        useCORS: true,
+      }).then((canvas) => {
+        setDataImage(canvas.toDataURL('image/png', 1.0));
       });
-    } catch (error) {
-      router.push('/voucher');
     }
-  };
+  }, [componentRef]);
 
-  if (status === 'authenticated') {
-    return (
-      <section className="grid h-screen place-items-center">
-        <div className="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-          <h2 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-            Hi {session?.user?.name}
-          </h2>
-          <br />
-          <p className="mb-3 font-normal text-gray-700 dark:text-gray-400">
-            You are signed in as {session?.user?.email}.
-          </p>
-          <button
-            type="button"
-            onClick={() => signOut()}
-            className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
-          >
-            Logout
-          </button>
-        </div>
-      </section>
-    );
-  }
   return (
-    <section className="grid h-screen place-items-center">
-      <div className="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-        <h2 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-          Welcome To LogRocket
-        </h2>
-        <br />
-        <p className="mb-3 font-normal text-gray-700 dark:text-gray-400">
-          You currently not authenticated. Click the login button to get started!
-        </p>
-        <button
-          type="button"
-          onClick={() => signIn()}
-          className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
-        >
-          Login
-        </button>
-      </div>
-
-      <button
-        id="myInput"
-        type="button"
-        // onClick={() => router.push('/voucher')}
-        onClick={() =>
-          componentRef &&
-          componentRef.current &&
-          exportAsImage(componentRef.current, `Trà Sữa -  ${new Date().getTime()}`)
-        }
-        className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
-      >
-        Save voucher
-      </button>
-
-      <button
-        type="button"
-        onClick={() => setIsOpen(true)}
-        className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
-      >
-        Open modal
-      </button>
-
+    <div>
+      {dataImage && <img src={dataImage} alt="logo" crossOrigin="anonymous" />}
       <div ref={componentRef} className="w-[488px] h-[1000px] absolute top-[-200%] left-[-200%]">
         <div
           style={{
@@ -233,8 +151,8 @@ export default function Home() {
           </div>
         </div>
       </div>
-
-      <ModalVoucher isOpen={isOpen} setIsOpen={setIsOpen} />
-    </section>
+    </div>
   );
 }
+
+export default Voucher;
