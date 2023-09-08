@@ -1503,9 +1503,9 @@ camelcase-css@^2.0.1:
   integrity sha512-QOSvevhslijgYwRx6Rv7zKdMF8lbRmx+uQGx2+vDc+KI/eBnsy9kit5aj23AgGu3pa4t9AgwbnXWqS+iOY+2aA==
 
 caniuse-lite@^1.0.30001400, caniuse-lite@^1.0.30001406, caniuse-lite@^1.0.30001426:
-  version "1.0.30001439"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001439.tgz#ab7371faeb4adff4b74dad1718a6fd122e45d9cb"
-  integrity sha512-1MgUzEkoMO6gKfXflStpYgZDlFM7M/ck/bgfVCACO5vnAf0fXoNVHdWtqGU+MYca+4bL9Z5bpOVmR33cWW9G2A==
+  version "1.0.30001529"
+  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001529.tgz"
+  integrity sha512-n2pUQYGAkrLG4QYj2desAh+NqsJpHbNmVZz87imptDdxLAtjxary7Df/psdfyDGmskJK/9Dt9cPnx5RZ3CU4Og==
 
 chalk@^4.0.0:
   version "4.1.2"
@@ -2889,6 +2889,32 @@ minimist@^1.2.0, minimist@^1.2.6:
   resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.7.tgz#daa1c4d91f507390437c6a8bc01078e7000c4d18"
   integrity sha512-bzfL1YUZsP41gmu/qjrEk0Q6i2ix/cVeAhbCbqH9u3zYutS1cLg00qhrD0M2MVdCcx4Sc0UpP2eBWo9rotpq6g==
 
+mobx-persist@^0.4.1:
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/mobx-persist/-/mobx-persist-0.4.1.tgz#fe5790eda04e0ee0b91c512d1347104e09363f9a"
+  integrity sha512-cPxVuZTY5neesxOV/Z25SF4+/NbC6wfHOe9HT5XoSEkAALNxNE41yDK48peJQ3iK14m0G2ywQRklCXeV3wftnQ==
+  dependencies:
+    serializr "^1.1.11"
+
+mobx-react-lite@^4.0.4:
+  version "4.0.4"
+  resolved "https://registry.yarnpkg.com/mobx-react-lite/-/mobx-react-lite-4.0.4.tgz#eee3c55dfa6841365d5a7764971c456db12570fb"
+  integrity sha512-68uNYvQC/5Dazs3sIBv+bnpzRwcWde8y4ujHiLizhq8yeQtJ2tlNUGSh4r40gyE5M0utACIofBDsAj2hplcovQ==
+  dependencies:
+    use-sync-external-store "^1.2.0"
+
+mobx-react@^9.0.1:
+  version "9.0.1"
+  resolved "https://registry.yarnpkg.com/mobx-react/-/mobx-react-9.0.1.tgz#f03fd8a2f009af260971a558acc29c0e04808e26"
+  integrity sha512-0idiElBgNMJg20YqGgHvYEnlqIJpPDQaOkxj2dHJIZeqCvUh+zBkBkMkpUFw/uEd1OdPUvT0y+AFBqsWIUAXww==
+  dependencies:
+    mobx-react-lite "^4.0.4"
+
+mobx@^6.10.2:
+  version "6.10.2"
+  resolved "https://registry.yarnpkg.com/mobx/-/mobx-6.10.2.tgz#96e123deef140750360ca9a5b02a8b91fbffd4d9"
+  integrity sha512-B1UGC3ieK3boCjnMEcZSwxqRDMdzX65H/8zOHbuTY8ZhvrIjTUoLRR2TP2bPqIgYRfb3+dUigu8yMZufNjn0LQ==
+
 mongodb-connection-string-url@^2.5.4:
   version "2.6.0"
   resolved "https://registry.yarnpkg.com/mongodb-connection-string-url/-/mongodb-connection-string-url-2.6.0.tgz#57901bf352372abdde812c81be47b75c6b2ec5cf"
@@ -3541,6 +3567,11 @@ semver@^7.3.7:
   dependencies:
     lru-cache "^6.0.0"
 
+serializr@^1.1.11:
+  version "1.5.4"
+  resolved "https://registry.yarnpkg.com/serializr/-/serializr-1.5.4.tgz#3ddf1cb7b4465c9c3f72bab0cbc41e09dbe50c33"
+  integrity sha512-ImLlkNfNSSv9d7Ah1j/yrPk1FHbRC1zkD7URcgx/8M1eYHGUxGf/Ig/d8ML04ifqN7QesyYKsfLYA4xjAVAR/g==
+
 shebang-command@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/shebang-command/-/shebang-command-2.0.0.tgz#ccd0af4f8835fbdc265b82461aaf0c36663f34ea"
@@ -3893,6 +3924,11 @@ uri-js@^4.2.2:
   integrity sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==
   dependencies:
     punycode "^2.1.0"
+
+use-sync-external-store@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/use-sync-external-store/-/use-sync-external-store-1.2.0.tgz#7dbefd6ef3fe4e767a0cf5d7287aacfb5846928a"
+  integrity sha512-eEgnFxGQ1Ife9bzYs6VLi8/4X6CObHMw9Qr9tPY43iKwsPw8xE8+EFsf/2cFZ5S3esXgpWgtSCtLNS41F+sKPA==
 
 util-deprecate@^1.0.2:
   version "1.0.2"

@@ -1,4 +1,5 @@
 import { useSession, signIn, signOut } from 'next-auth/react';
+import ChangeName from 'components/ChangeName';
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -43,6 +44,7 @@ export default function Home() {
           Login
         </button>
       </div>
+      <ChangeName />
     </section>
   );
 }
