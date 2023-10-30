@@ -27,7 +27,7 @@ export default function Home() {
   //   );
   // }
   return (
-    <section className="h-screen relative bg-[url('/assets/images/galaxy.svg')] bg-cover bg-bottom overflow-hidden">
+    <section>
       {/* <div className="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
         <h2 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
           Welcome To LogRocket
