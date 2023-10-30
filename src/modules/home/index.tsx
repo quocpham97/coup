@@ -50,7 +50,7 @@ function Home() {
     return () => {
       clearTimeout(id);
     };
-  }, [days, hours, minutes, seconds]);
+  }, [NEW_LUNAR_YEAR_DATE, days, hours, minutes, seconds]);
 
   return (
     <div className="h-screen relative bg-[url('/assets/images/bg-stars.svg')] bg-[var(--Very-dark-mostly-black-blue)] bg-no-repeat bg-top overflow-hidden">
