@@ -69,7 +69,7 @@ function RoomModule() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const intervalRef = useRef<NodeJS.Timer>();
+  const intervalRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
     intervalRef.current = setInterval(() => {
